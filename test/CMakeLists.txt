@@ -54,4 +54,5 @@ add_custom_target(test_allolithe COMMAND ${CMAKE_CTEST_COMMAND})
 endif()
 
 # Adding the tests individually here using add_subdirectory()
-add_subdirectory(testTemplate)
+add_subdirectory(testModule)
+add_subdirectory(testSinkModule)

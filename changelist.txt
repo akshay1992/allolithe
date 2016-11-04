@@ -1,0 +1,19 @@
+Added Module
+Added Sink
+
+Still can't decide how the processing architecture should be on the sink
+However, it seems like the best way is to treat the io as another parameter, and then just use that
+within the DSP function. 
+
+This way, you don't have to rewrite the processing structure.
+
+Then, you add onSound in SoundEngine, and then run Sink.process() within while(io()) {} 
+This way you have everything.
+
+You also need to think about using an onSound() anyways. Such that it takes care of the stop/start mechanism. 
+
+Meanwhile. in either case, add test cases for the basic functionality before putting this into the picture. 
+
+Cool? Cool. 
+
+`

@@ -1,15 +1,15 @@
 #include "gtest/gtest.h"
 
 // The fixture for testing class Block.
-class TemplateTest : public ::testing::Test {
+class ModuleTest : public ::testing::Test {
 
 protected:
 
     // You can do set-up work for each test here.
-    TemplateTest();
+    ModuleTest();
     
     // You can do clean-up work that doesn't throw exceptions here.
-    virtual ~TemplateTest();
+    virtual ~ModuleTest();
 
     // If the constructor and destructor are not enough for setting up
     // and cleaning up each test, you can define the following methods:
