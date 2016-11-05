@@ -57,3 +57,11 @@ TEST_F(ModuleTest, getModuleRef)
 	EXPECT_EQ(m.numOutlets(), 2);
 	EXPECT_EQ(m.numParams(), 3);
 }
+
+TEST_F(ModuleTest, get_set_moduleName)
+{
+	ModuleOne m2(2,2,1);
+	ASSERT_STREQ( m2.getName().c_str(), "");
+	m2.setName("myModule");
+	ASSERT_STREQ( m2.getName().c_str(), "myModule");
+}

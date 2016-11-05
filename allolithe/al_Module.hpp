@@ -46,7 +46,7 @@ public:
 	/// @brief NodeID is the ID of this module as a node in the audiograph
 	int getNodeID() { return getID(); }
 
-	/// @brief ModuleID is the ID given to a module that is
+	/// @brief ModuleID is the ID given to a module that is TODO: TESTS for this
 	int getModuleID() { return moduleID; }
 
 	/// @brief Creates a basic GLV View of showing all the parameters

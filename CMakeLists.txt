@@ -22,7 +22,8 @@ set(LITHE_DONT_BUILD_TESTS true)
 ExternalProject_Add(
 	Lithe
 	GIT_REPOSITORY "git@github.com:akshay1992/Lithe.git"
-  	GIT_TAG "master"
+  	# GIT_TAG "master"
+  	GIT_TAG "deprecating_sink"
     
     PREFIX ${CMAKE_BINARY_DIR}/Lithe
     INSTALL_DIR ${CMAKE_BINARY_DIR}/Lithe
@@ -45,7 +46,6 @@ target_include_directories( allolithe PUBLIC ${ALLOLITHE_INCLUDE_DIR} ${ALLOCORE
 # Add the unit tests -- this is excluded from the default make all target
 # (to run unit tests use the command: `make test_allolithe`)
 add_subdirectory(test EXCLUDE_FROM_ALL)
-
 
 #  -------------------------- Documentation  -------------------------- 
 add_subdirectory(doc)
