@@ -1,4 +1,4 @@
-deprecated lithe::Sink
-added onSound in al::Sink (depending on al::Module)
-depends on 'deprecating_sink' branch of Lithe.
-Added SoundEngine implementation. Need to test instantiation
+Fixed bug in sink implementation to include reseting the process state of the audio graph
+renamed doneProcessing function in Lithe. (shouldn't make a difference here)
+Included pull test to verify functionality.
+ 

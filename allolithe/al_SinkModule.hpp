@@ -22,6 +22,8 @@ public:
 	/// @brief Used to check if current IO device is compatible (min numChannels, .etc)
 	virtual void checkIOcompatibility(al::AudioIOData& io)=0;
 
+	virtual void Process(void) override;
+
 	void run(void);
 	void stop(void) { mRunning = false; } 
 	bool isRunning(void) { return mRunning.load(); }

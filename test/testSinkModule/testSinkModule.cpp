@@ -1,5 +1,8 @@
 #include "testSinkModule.h"
 #include "SinkModuleOne.h"
+#include "ModuleSource.hpp"
+#include "ModuleEffect.hpp"
+#include "ModuleSink.hpp"
 
 void dummyCB(al::AudioIOData& io)
 {
@@ -75,4 +78,33 @@ TEST_F(SinkModuleTest, checkIOcompatibility)
 		al::AudioIO dummyIO(32, 48000.0, dummyCB, NULL, 12, 0, al::AudioIO::DUMMY);
 		EXPECT_THROW( m41.checkIOcompatibility(dummyIO) , std::runtime_error);
 	}
+}
+
+TEST_F(SinkModuleTest, PullTest)
+{
+	/// Tests the mechanism of the sink to pull from the upstream notes
+	ModuleSource m1;
+	ModuleEffect m2;
+	ModuleSink sink;
+
+	lithe::Patcher::connect(m2.getInlet(0), m1.getOutlet(0));
+	lithe::Patcher::connect(sink.getInlet(0), m2.getOutlet(0));
+
+	lithe::Sample s(0.5, 0.1, 0.2, -0.2);
+	m1.inject(s);
+	sink.Process();
+
+	EXPECT_FLOAT_EQ(sink.s[0], 0.5);
+	EXPECT_FLOAT_EQ(sink.s[1], 0.2);
+	EXPECT_FLOAT_EQ(sink.s[2], 0.3);
+	EXPECT_FLOAT_EQ(sink.s[3], -0.1);
+
+	s = lithe::Sample(0.2, -0.1, 1, -1);
+	m1.inject(s);
+	sink.Process();
+
+	EXPECT_FLOAT_EQ(sink.s[0], 0.2);
+	EXPECT_FLOAT_EQ(sink.s[1], 0.0);
+	EXPECT_FLOAT_EQ(sink.s[2], -0.9);
+	EXPECT_FLOAT_EQ(sink.s[3], -0.9);
 }

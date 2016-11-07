@@ -17,6 +17,13 @@ void SinkModule::run()
 	mRunning = true; 
 }
 
+void SinkModule::Process(void)
+{
+	DSP();
+	doneProcessing();
+	lithe::Node::resetAll_ProcessState(); // IMPORTANT
+}
+
 void SinkModule::onSound(al::AudioIOData& io)
 {
 	if(isRunning())
@@ -24,6 +31,7 @@ void SinkModule::onSound(al::AudioIOData& io)
 		while(io())
 		{
 			Process();
+			/// Fill audio objects
 		}
 		spatialize(io);
 	}
