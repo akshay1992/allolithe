@@ -30,11 +30,11 @@ public:
 	virtual void checkIOcompatibility(al::AudioIOData& io) override
 	{
 		if( io.channelsOut() < min_reqired_channels) 
-			throw std::runtime_error("Incompatible IO with Sink "+getName());
+			throw std::runtime_error("Incompatible IO with Sink");
 		else if( io.framesPerBuffer() < lowest_buffer_length )
-			throw std::runtime_error("Incompatible IO with Sink "+getName());
+			throw std::runtime_error("Incompatible IO with Sink");
 		else if ( io.framesPerSecond() < min_sample_rate )
-			throw std::runtime_error("Incompatible IO with Sink "+getName());
+			throw std::runtime_error("Incompatible IO with Sink");
 	}
 
 private:

@@ -5,6 +5,7 @@
 #include "allocore/ui/al_Parameter.hpp"
 #include "alloGLV/al_ParameterGUI.hpp"
 #include <vector>
+#include <string>
 
 namespace al{
 
@@ -21,7 +22,7 @@ class Module : public lithe::Node
 public:
 	Module(int numInlets, int numOutlets, int numParameters);
 
-	~Module(void);
+	virtual ~Module(void);
 
 	/** @brief Use this to fill up the parameters vector
 
@@ -46,14 +47,8 @@ public:
 	/// @brief NodeID is the ID of this module as a node in the audiograph
 	int getNodeID() { return getID(); }
 
-	/// @brief ModuleID is the ID given to a module that is TODO: TESTS for this
-	int getModuleID() { return moduleID; }
-
 	/// @brief Creates a basic GLV View of showing all the parameters
 	glv::View& createDefaultView(bool debugging=false);
-
-	void setName(std::string name) { module_name = name; }
-	std::string& getName(void) { return module_name; }
 
 protected:
 	std::vector<al::Parameter*> parameters;
@@ -62,11 +57,8 @@ protected:
 private:
 	using lithe::Node::getID;
 	using lithe::Node::getNodeRef;
-	std::string module_name;
-	int moduleID = -1; 
 };
 
 }; // namespace al
-
 
 #endif // AL_MODULE_HPP

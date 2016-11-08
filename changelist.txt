@@ -1,4 +1,5 @@
-Fixed bug in sink implementation to include reseting the process state of the audio graph
-renamed doneProcessing function in Lithe. (shouldn't make a difference here)
-Included pull test to verify functionality.
- 
+Made cmake external project not update everytime it is built.
+: 
+removed module id and module name from module - this is something better defined in derived classes
+Added getSinkModuleRef to sink
+added basic soundengine, tests unfinished

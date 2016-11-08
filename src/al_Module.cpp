@@ -40,7 +40,7 @@ Module& Module::getModuleRef(int nodeID)
 	{
 		al::Module* module_ref = static_cast<al::Module*>(lithe::Node::getNodeRef(nodeID));
 		if(module_ref == NULL)
-			throw std::runtime_error("Module instance not found or instance was destroyed");
+			throw std::runtime_error("Module instance not found or instance was destroyed. NodeID: "+std::to_string(nodeID));
 		else
 			return *module_ref;
 	}

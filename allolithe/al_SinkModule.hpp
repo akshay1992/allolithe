@@ -24,6 +24,8 @@ public:
 
 	virtual void Process(void) override;
 
+	static al::SinkModule& getSinkModuleRef(int nodeID);
+
 	void run(void);
 	void stop(void) { mRunning = false; } 
 	bool isRunning(void) { return mRunning.load(); }

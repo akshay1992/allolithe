@@ -24,7 +24,8 @@ ExternalProject_Add(
 	GIT_REPOSITORY "git@github.com:akshay1992/Lithe.git"
   	# GIT_TAG "master"
   	GIT_TAG "deprecating_sink"
-    
+    UPDATE_DISCONNECTED 1	# Don't update everytime you build
+
     PREFIX ${CMAKE_BINARY_DIR}/Lithe
     INSTALL_DIR ${CMAKE_BINARY_DIR}/Lithe
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=<INSTALL_DIR>
