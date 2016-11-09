@@ -11,7 +11,7 @@ al::SoundEngine& DefaultSoundEngine(void)
 
 int SoundEngine::instantiateModule(int moduleID)
 {
-	if( moduleID > ModuleNames.size()-1 ) 
+	if( moduleID > ModuleNames.size()-1 || moduleID < 0 ) 
 		throw std::range_error("Module with id: " + std::to_string(moduleID) + " not registered");
 	else
 	{		
@@ -36,17 +36,26 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 
 void SoundEngine::onSound(al::AudioIOData& io)
 {
-	if( sink_ref != NULL)
-	{
-		sink_ref->onSound(io);
-	}
+	getSink().onSound(io);
 }
 
 void SoundEngine::setSink(int sink_module_id)
 {
 	// sink_ref = &sink;
 	int nodeID = instantiateModule(sink_module_id);
-	// sink_ref = &al::SinkModule::getSinkModuleRef(nodeID);
+	sink_ref = &al::SinkModule::getSinkModuleRef(nodeID);
+}
+
+al::SinkModule& SoundEngine::getSink(void) 
+{
+	if( sink_ref == NULL)
+	{
+		throw std::runtime_error("Sink not set");
+	}
+	else
+	{
+		return *sink_ref; 			
+	}
 }
 
 int SoundEngine::RegisterModule(std::string module_name, ModuleFactoryFunction module_factory_function)

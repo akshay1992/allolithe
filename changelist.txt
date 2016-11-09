@@ -1,5 +1,9 @@
-Made cmake external project not update everytime it is built.
-: 
-removed module id and module name from module - this is something better defined in derived classes
-Added getSinkModuleRef to sink
-added basic soundengine, tests unfinished
+Added examples folder with the prototype "app"
+For the time being it hooks into the SoundEngine, and can instantiate modules (along with their default views)
+Modified run/stop functions in SoundEngine to use getSink() instead of pointer
+Added soundengine to al_allolithe.hpp
+
+TODO: 
+defaultGUI maker
+Widgets for inlets and outlets
+Patch cables

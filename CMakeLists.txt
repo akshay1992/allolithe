@@ -50,3 +50,6 @@ add_subdirectory(test EXCLUDE_FROM_ALL)
 
 #  -------------------------- Documentation  -------------------------- 
 add_subdirectory(doc)
+
+# --------------------------- Examples  -------------------------- 
+add_subdirectory(examples)

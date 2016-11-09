@@ -31,6 +31,7 @@ Module::~Module(void)
 glv::View& Module::createDefaultView(bool debugging)
 {
 	// TODO:
+	return *new glv::View(glv::Rect(80, 80));
 
 }
 

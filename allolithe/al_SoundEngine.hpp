@@ -52,17 +52,7 @@ public:
 	void setSink(int sink_module_id) ;
 
 	/// @brief Get the sink from which SoundEngine processes the audiograph.
-	al::SinkModule& getSink(void) 
-	{
-		if( sink_ref == NULL)
-		{
-			throw std::runtime_error("Sink not set");
-		}
-		else
-		{
-			return *sink_ref; 			
-		}
-	}
+	al::SinkModule& getSink(void);
 
 	/** @brief Registers a module with the SoundEngine.
 
@@ -80,6 +70,27 @@ public:
 	int RegisterModule(std::string module_name)
 	{
 		return RegisterModule(module_name, default_module_factory<T>);
+	}
+
+	void run() 
+	{ 
+		getSink().run(); 
+	}
+	void stop() 
+	{ 
+		getSink().stop(); 
+	}
+	bool isRunning(void) 
+	{
+		try
+		{
+			getSink().isRunning(); 
+		}
+		catch(std::runtime_error)
+		{
+			// if sink isn't set then it isn't running
+			return false;
+		}
 	}
 
 private:

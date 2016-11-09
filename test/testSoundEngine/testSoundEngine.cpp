@@ -67,8 +67,8 @@ TEST_F(SoundEngineTest, patching_and_unpatching)
 
 TEST_F(SoundEngineTest, setgetSink)
 {
-	DummySink sink;
 	EXPECT_THROW( al::DefaultSoundEngine().getSink(), std::runtime_error);
 	al::DefaultSoundEngine().setSink(DummySink::moduleID);
 	EXPECT_NO_THROW( al::DefaultSoundEngine().getSink());
 }
+

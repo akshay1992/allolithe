@@ -1,0 +1,1 @@
+add_subdirectory(litheModularApp EXCLUDE_FROM_ALL)
