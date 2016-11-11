@@ -23,10 +23,9 @@ public:
 		}
 	}
 
-	virtual void spatialize(al::AudioIOData& io) override{}
+	// virtual void spatialize(al::AudioIOData& io) override{}
 	// MOCKMETHOD1(spatialize, void(al::AudioIOData& io));
-
-
+	
 	virtual void checkIOcompatibility(al::AudioIOData& io) override
 	{
 		if( io.channelsOut() < min_reqired_channels) 

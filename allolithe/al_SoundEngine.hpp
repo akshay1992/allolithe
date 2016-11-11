@@ -42,14 +42,17 @@ public:
 	*/
 	virtual void onSound(al::AudioIOData& io);
 
-	bool patch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
+	void patch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
 
-	bool unpatch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
+	void unpatch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
 
 	bool unpatch_from_inlet(int nodeID, int inlet_index);
 
-	/// @brief Set the sink from which SoundEngine must process the audiograph. Automatically instantiates.
-	void setSink(int sink_module_id) ;
+	/// @brief Set the sink from which SoundEngine must process the audiograph. Automatically instantiates and returns the nodeID of the sink
+	int setAndInstantiateSink(int sink_module_id) ;
+	
+	///@brief Set the sink from which SoundEngine must process the audiograph. Must already be instantiated
+	void setSink(int sink_node_id, int sink_module_id);
 
 	/// @brief Get the sink from which SoundEngine processes the audiograph.
 	al::SinkModule& getSink(void);
@@ -61,7 +64,6 @@ public:
 	*/
 	int RegisterModule(std::string module_name, ModuleFactoryFunction module_factory_function);
 
-
 	/** @brief Registers a module with the SoundEngine using a default factory function default_module_factory.
 			
 		If there are any special steps to be taken in instantiating your module, use the other RegisterModule function provided.
@@ -72,26 +74,9 @@ public:
 		return RegisterModule(module_name, default_module_factory<T>);
 	}
 
-	void run() 
-	{ 
-		getSink().run(); 
-	}
-	void stop() 
-	{ 
-		getSink().stop(); 
-	}
-	bool isRunning(void) 
-	{
-		try
-		{
-			getSink().isRunning(); 
-		}
-		catch(std::runtime_error)
-		{
-			// if sink isn't set then it isn't running
-			return false;
-		}
-	}
+	void run() { getSink().run(); std::cout << "Running Sink " << std::endl; }
+	void stop() { getSink().stop(); std::cout << "Stopping Sink " << std::endl; }
+	bool isRunning(void);
 
 private:
 	al::SinkModule* sink_ref = NULL;
@@ -103,14 +88,14 @@ private:
 /// @brief Returns the default instance of the SoundEngine (instantited as a static within this function)
 al::SoundEngine& DefaultSoundEngine(void);
 
-/// @brief Sorthand for registering to the default sound engine in DefaultSoundEngine()
+/// @brief Sorthand for registering a Module to the default sound engine in DefaultSoundEngine()
 int RegisterModule(std::string module_name, ModuleFactoryFunction module_factory_function);
 
-/// @brief Sorthand for registering to the default sound engine in DefaultSoundEngine()
+/// @brief Sorthand for registering a Module to the default sound engine in DefaultSoundEngine()
 template<typename T>
 int RegisterModule(std::string module_name)
 {
-	return DefaultSoundEngine().RegisterModule<T>(module_name);
+	return RegisterModule(module_name, default_module_factory<T>);
 }
 
 }; // namespace al

@@ -17,12 +17,12 @@ void SinkModule::run()
 	mRunning = true; 
 }
 
-void SinkModule::Process(void)
-{
-	DSP();
-	doneProcessing();
-	lithe::Node::resetAll_ProcessState(); // IMPORTANT
-}
+// void SinkModule::Process(void)
+// {
+// 	DSP();
+// 	doneProcessing();
+// 	lithe::Node::resetAll_ProcessState(); // IMPORTANT
+// }
 
 al::SinkModule& SinkModule::getSinkModuleRef(int nodeID)
 {
@@ -46,10 +46,12 @@ void SinkModule::onSound(al::AudioIOData& io)
 	{
 		while(io())
 		{
-			Process();
+			// Process();
 			/// Fill audio objects
+			lithe::Node::resetAll_ProcessState(); // IMPORTANT: DO THIS AFTER EVERY SAMPLE
 		}
-		spatialize(io);
+		// spatialize(io);
+		/// Put buffer processors here
 	}
 }
 

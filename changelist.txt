@@ -1,3 +1,5 @@
+-----------
+Nov 09 2016:
 Added examples folder with the prototype "app"
 For the time being it hooks into the SoundEngine, and can instantiate modules (along with their default views)
 Modified run/stop functions in SoundEngine to use getSink() instead of pointer
@@ -7,3 +9,10 @@ TODO:
 defaultGUI maker
 Widgets for inlets and outlets
 Patch cables
+
+------------
+Nov 10 2016:
+Created simple oscillator app as an example. Borrows from an al App example and inserts the oscillator module. works. Gui works. ++Nov 11th
+added createDefaultView to Module from old project (this is untested, and may look weird) 
+Removed spatialize, DSP, Process from sink -- monolithically need to define all processing in onSound now
+-- Lithe modular app not added in this commit. See next commit. 

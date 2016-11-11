@@ -1,7 +1,10 @@
 #include "allolithe/al_SoundEngine.hpp"
 #include <algorithm>
+#include "allolithe/al_Exceptions.hpp"
 
 namespace al {
+
+//-------------------------------------------------------------------------------------
 
 al::SoundEngine& DefaultSoundEngine(void)
 {
@@ -12,10 +15,11 @@ al::SoundEngine& DefaultSoundEngine(void)
 int SoundEngine::instantiateModule(int moduleID)
 {
 	if( moduleID > ModuleNames.size()-1 || moduleID < 0 ) 
-		throw std::range_error("Module with id: " + std::to_string(moduleID) + " not registered");
+		throw ModuleNotRegisteredException(moduleID);
 	else
 	{		
 		instantiatedNodeIDs.push_back(ModuleConstructors[moduleID]());
+		std::cout << "Instantiated module " << ModuleNames[moduleID] << " with ID " <<  instantiatedNodeIDs.back() << std::endl;
 		return instantiatedNodeIDs.back();
 	}
 }
@@ -39,18 +43,24 @@ void SoundEngine::onSound(al::AudioIOData& io)
 	getSink().onSound(io);
 }
 
-void SoundEngine::setSink(int sink_module_id)
+int SoundEngine::setAndInstantiateSink(int sink_module_id)
 {
-	// sink_ref = &sink;
 	int nodeID = instantiateModule(sink_module_id);
-	sink_ref = &al::SinkModule::getSinkModuleRef(nodeID);
+	setSink(nodeID, sink_module_id);
+	return nodeID;
+}
+
+void SoundEngine::setSink(int sink_node_id, int sink_module_id)
+{
+	sink_ref = &al::SinkModule::getSinkModuleRef(sink_node_id);
+	std::cout << "Setting Sink as: " << ModuleNames[sink_module_id] << std::endl;
 }
 
 al::SinkModule& SoundEngine::getSink(void) 
 {
 	if( sink_ref == NULL)
 	{
-		throw std::runtime_error("Sink not set");
+		throw SinkNotSetException();
 	}
 	else
 	{
@@ -77,33 +87,58 @@ int RegisterModule(std::string module_name, ModuleFactoryFunction module_factory
 	return DefaultSoundEngine().RegisterModule(module_name, module_factory_function);
 }
 
-bool SoundEngine::patch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index)
+
+void SoundEngine::patch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index)
 {
-	if(getSink().isRunning() )
+	bool sink_is_running;
+	try
 	{
-		throw std::runtime_error("Cannot connect patch when sink is running");
+		sink_is_running = getSink().isRunning();
+	}
+	catch(SinkNotSetException)
+	{
+		sink_is_running = false; // Sink isn't running (since it isn't set)
+	}
+
+	if( sink_is_running )
+	{
+		throw PatchingException(PatchingExceptionType::SINK_IS_RUNNING);
 	}
 	else
 	{
 		try
 		{
 			lithe::Patcher::connect(
-				al::Module::getModuleRef(destination_nodeID).getInlet(inlet_index), 
-				al::Module::getModuleRef(source_nodeID).getOutlet(outlet_index));
-			return true;
+			al::Module::getModuleRef(destination_nodeID).getInlet(inlet_index), 
+			al::Module::getModuleRef(source_nodeID).getOutlet(outlet_index));
 		}
-		catch(...)
+		catch(std::runtime_error e)
 		{
-			return false;				
+			throw PatchingException(PatchingExceptionType::LITHE_ERROR_PATCHING, e);
+		}
+		catch(std::range_error e)
+		{
+			throw PatchingException(PatchingExceptionType::LITHE_ERROR_PATCHING, e);
 		}
 	}
+
 }
 
-bool SoundEngine::unpatch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index)
+void SoundEngine::unpatch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index)
 {
-	if(getSink().isRunning() )
+	bool sink_is_running;
+	try
 	{
-		throw std::runtime_error("Cannot connect patch when sink is running");
+		sink_is_running = getSink().isRunning();
+	}
+	catch(SinkNotSetException)
+	{
+		sink_is_running = false; // Sink isn't running (since it isn't set)
+	}
+
+	if( sink_is_running )
+	{
+		throw PatchingException(PatchingExceptionType::SINK_IS_RUNNING);
 	}
 	else
 	{
@@ -112,11 +147,14 @@ bool SoundEngine::unpatch(int destination_nodeID, int inlet_index, int source_no
 			lithe::Patcher::disconnect(
 				al::Module::getModuleRef(destination_nodeID).getInlet(inlet_index), 
 				al::Module::getModuleRef(source_nodeID).getOutlet(outlet_index));
-			return true;
 		}
-		catch(...)
+		catch(std::runtime_error e)
 		{
-			return false;				
+			throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
+		}
+		catch(std::range_error e)
+		{
+			throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
 		}
 	}
 }
@@ -138,6 +176,11 @@ bool SoundEngine::unpatch_from_inlet(int nodeID, int inlet_index)
 			return false;
 		}
 	}
+}
+
+bool SoundEngine::isRunning(void)
+{
+	return getSink().isRunning(); 
 }
 
 

@@ -34,7 +34,7 @@ public:
 	*/
 	virtual void instantiate_parameters(void) =0;
 
-	int numParams(void) {return numParameters;}
+	int numParams(void) const {return numParameters;}
 	
 	/// @brief Gets the al::Parameter specified by index
 	al::Parameter& parameter(int index);
@@ -44,13 +44,15 @@ public:
 
 	static Module& getModuleRef(int nodeID);
 
+	virtual glv::View& createView(bool debugging = false);
+
+	friend glv::View& createDefaultView(al::Module& module, bool debugging);
+
 	/// @brief NodeID is the ID of this module as a node in the audiograph
 	int getNodeID() { return getID(); }
 
-	/// @brief Creates a basic GLV View of showing all the parameters
-	glv::View& createDefaultView(bool debugging=false);
-
 protected:
+
 	std::vector<al::Parameter*> parameters;
 	const int numParameters;
 
@@ -58,6 +60,9 @@ private:
 	using lithe::Node::getID;
 	using lithe::Node::getNodeRef;
 };
+
+/// @brief Creates a basic GLV View of showing all the parameters
+glv::View& createDefaultView(al::Module& module, bool debugging=false);
 
 }; // namespace al
 

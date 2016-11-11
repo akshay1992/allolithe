@@ -87,12 +87,14 @@ TEST_F(SinkModuleTest, PullTest)
 	ModuleEffect m2;
 	ModuleSink sink;
 
+	al::AudioIO dummyIO(32, 48000.0, dummyCB, NULL, 12, 0, al::AudioIO::DUMMY);
+
 	lithe::Patcher::connect(m2.getInlet(0), m1.getOutlet(0));
 	lithe::Patcher::connect(sink.getInlet(0), m2.getOutlet(0));
 
 	lithe::Sample s(0.5, 0.1, 0.2, -0.2);
 	m1.inject(s);
-	sink.Process();
+	sink.onSound(dummyIO);
 
 	EXPECT_FLOAT_EQ(sink.s[0], 0.5);
 	EXPECT_FLOAT_EQ(sink.s[1], 0.2);
@@ -101,7 +103,7 @@ TEST_F(SinkModuleTest, PullTest)
 
 	s = lithe::Sample(0.2, -0.1, 1, -1);
 	m1.inject(s);
-	sink.Process();
+	sink.onSound(dummyIO);
 
 	EXPECT_FLOAT_EQ(sink.s[0], 0.2);
 	EXPECT_FLOAT_EQ(sink.s[1], 0.0);
