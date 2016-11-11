@@ -16,3 +16,7 @@ Created simple oscillator app as an example. Borrows from an al App example and 
 added createDefaultView to Module from old project (this is untested, and may look weird) 
 Removed spatialize, DSP, Process from sink -- monolithically need to define all processing in onSound now
 -- Lithe modular app not added in this commit. See next commit. 
+ 
+--------------
+Nov 11th 
+Added all examples from folder. -- they don't build

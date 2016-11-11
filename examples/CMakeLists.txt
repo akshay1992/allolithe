@@ -1,1 +1,2 @@
 add_subdirectory(litheModularApp EXCLUDE_FROM_ALL)
+add_subdirectory(simpleOscillatorApp EXCLUDE_FROM_ALL)

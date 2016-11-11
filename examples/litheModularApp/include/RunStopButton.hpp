@@ -2,8 +2,8 @@
 #define RUN_STOP_BUTTON_HPP
 
 #include "glv/glv.h"
-#include "MockSoundEngine.hpp"
 #include "al_PatcherGUI.hpp"
+
 #include <iostream>
 using namespace std;
 
@@ -18,6 +18,7 @@ public:
 		property(glv::Visible, true);
 		symbolOn(glv::draw::triangleR);
 		symbolOff(glv::draw::rectTrunc<4,4,4,4>);
+		attachVariable(state);
 	}
 
 	virtual bool onEvent(glv::Event::t e, glv::GLV& g) override
@@ -27,6 +28,7 @@ public:
 			case glv::Event::MouseDown: return true;
 		}
 	}
+	bool state = false;
 };
 
 #endif // RUN_STOP_BUTTON_HPP
