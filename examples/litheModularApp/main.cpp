@@ -12,8 +12,7 @@ al::PatcherGUI gui;
 
 int main()
 {
-
-	gui.openWindow();
+	// gui.openWindow();
 
 	// al::AudioIO(44100, )
 

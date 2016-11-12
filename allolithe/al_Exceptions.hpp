@@ -6,6 +6,45 @@
 #include <sstream>
 
 namespace al{
+
+// class NodeNotFoundException : std::runtime_error
+// {
+// public:
+// 	NodeNotFoundException(int id) : 
+// 		std::runtime_error("Node not found "), nodeID(id)
+// 	{
+
+// 	}
+// 	virtual const char* what() const throw()
+//   	{
+// 	    message.str( "" );
+// 	    message << std::range_error::what() << "   NodeID: " << std::to_string(nodeID);
+// 	    return message.str().c_str();
+// 	}
+
+// private:
+// 	int nodeID;
+//     static std::ostringstream message;
+// };
+
+
+class NodeNotFoundException : std::range_error
+{
+public:
+	NodeNotFoundException(int id) : std::range_error("Module not registered"), moduleID(id) {}
+	virtual const char* what() const throw()
+  	{
+	    message.str( "" );
+	    message << std::range_error::what() << "   ID: " << std::to_string(moduleID);
+	    return message.str().c_str();
+	}
+
+private:
+	int moduleID;
+    static std::ostringstream message;
+};
+
+
 class SinkNotSetException : std::runtime_error
 {
 public:
@@ -73,6 +112,15 @@ private:
 	PatchingExceptionType type;
     static std::ostringstream message;
     std::string additional_message;
+};
+
+
+class CannotDeleteActiveSinkException : std::runtime_error
+{
+public:
+	CannotDeleteActiveSinkException(void) : 
+		std::runtime_error( "Cannot delete Sink. It is being used by the SoundEngine" ) 
+	{	}
 };
 
 }; // namespace al

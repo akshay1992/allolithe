@@ -1,12 +1,19 @@
 #include "al_PatcherGUI.hpp"
 #include "include_modules.hpp"
+
+#include <iostream>
+using namespace std;
+
 namespace al {
 
 PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) : 
 	sound_engine_ref(sound_engine)
 {
-	sound_engine_ref.setSink(al::StereoSink::moduleID);
-	(*this).add(sound_engine_ref.getSink().createView());
+	sound_engine_ref.instantiateModule(al::StereoSink::moduleID);
+	// sound_engine_ref.set
+
+	// sound_engine_ref.setAndInstantiateSink(al::StereoSink::moduleID);
+	// (*this).add(sound_engine_ref.getSink().createView());
 }
 
 void PatcherGUI::openWindow(void)

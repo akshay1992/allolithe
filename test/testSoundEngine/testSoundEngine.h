@@ -1,4 +1,6 @@
 #include "gtest/gtest.h"
+#include "allolithe/al_SoundEngine.hpp"
+#include "allolithe/al_Exceptions.hpp"
 
 // The fixture for testing class Block.
 class SoundEngineTest : public ::testing::Test {
@@ -21,4 +23,6 @@ protected:
     // Code here will be called immediately after each test (right
     // before the destructor).
     virtual void TearDown();
+
+    al::SoundEngine se_register_test, se_module_info_test;
 };

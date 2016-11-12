@@ -1,5 +1,5 @@
 #include "allolithe/al_Module.hpp"
-
+#include "allolithe/al_Exceptions.hpp"
 namespace al{
 
 Module::Module(int numInlets, int numOutlets, int numParameters) :
@@ -39,7 +39,7 @@ Module& Module::getModuleRef(int nodeID)
 	{
 		al::Module* module_ref = static_cast<al::Module*>(lithe::Node::getNodeRef(nodeID));
 		if(module_ref == NULL)
-			throw std::runtime_error("Module instance not found or instance was destroyed. NodeID: "+std::to_string(nodeID));
+			throw NodeNotFoundException(nodeID);
 		else
 			return *module_ref;
 	}

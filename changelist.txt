@@ -20,3 +20,12 @@ Removed spatialize, DSP, Process from sink -- monolithically need to define all 
 --------------
 Nov 11th 
 Added all examples from folder. -- they don't build
+
+--------------
+Nov 11th
+Redone test cases for SoundEngine. 
+Added Exceptions and integrated into soundengine tests. Patching tests still failing (look into this)
+Changed runtime_error exception from getModuleRef to a NodeNotFoundException
+Deleted empty patcher gui from allolithe 
+Rearranged files in the litheModularApp. App still doesn't build. (seg fault upon loading)
+

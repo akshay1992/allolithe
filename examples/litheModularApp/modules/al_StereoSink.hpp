@@ -22,20 +22,23 @@ public:
 		}
 	}
 
-	/// @brief Put the spatializer algorithm here. 
-	virtual void spatialize(al::AudioIOData& io) override
+	virtual void onSound(al::AudioIOData& io) override
 	{
-
-	}
-
-	virtual void DSP()
-	{
-
-	}
-
-	virtual void checkIOcompatibility(al::AudioIOData& io) override
-	{
-
+		if(isRunning())
+		{
+			while(io())
+			{
+				float out0=0;
+				float out1=0;
+				for( int i; i<numInlets(); ++i)
+				{
+					out0 += getInlet(0).getSample().audio;
+					out1 += getInlet(0).getSample().audio;
+				}
+				io.out(0) = out0;
+				io.out(1) = out1;
+			}
+		}
 	}
 
 	virtual glv::View& createView(bool debugging=false) override

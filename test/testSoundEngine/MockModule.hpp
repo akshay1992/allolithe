@@ -10,11 +10,4 @@ public:
 
 int MockModule::id;
 
-int MockFactory(void)
-{
-	static int i;
-	return i++;
-}
-
-
 #endif // MOCK_MODULE_HPP
