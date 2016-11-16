@@ -37,11 +37,11 @@ Module& Module::getModuleRef(int nodeID)
 {
 	try
 	{
-		al::Module* module_ref = static_cast<al::Module*>(lithe::Node::getNodeRef(nodeID));
-		if(module_ref == NULL)
-			throw NodeNotFoundException(nodeID);
-		else
-			return *module_ref;
+		return *static_cast<al::Module*>(lithe::Node::getNodeRef(nodeID));
+	}
+	catch( lithe::NodeNotFoundException n)
+	{
+		throw NodeNotFoundException(nodeID);
 	}
 	catch(const char * str)
 	{
