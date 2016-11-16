@@ -29,3 +29,8 @@ Changed runtime_error exception from getModuleRef to a NodeNotFoundException
 Deleted empty patcher gui from allolithe 
 Rearranged files in the litheModularApp. App still doesn't build. (seg fault upon loading)
 
+---------------
+Nov 16
+Changed Lithe branch to master
+modified API for patch and unpatch to use NodeInfo
+passing tests: soundengine patch and unpatch tests

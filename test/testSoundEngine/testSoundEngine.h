@@ -24,5 +24,10 @@ protected:
     // before the destructor).
     virtual void TearDown();
 
-    al::SoundEngine se_register_test, se_module_info_test;
+    al::SoundEngine se_register_test;
+    al::SoundEngine se_sink_set_test;
+    al::SoundEngine se_module_info_test;
+    al::SoundEngine se_module_instantiation_test;
+    al::SoundEngine se_module_delete_test;
+    al::SoundEngine se_patch_unpatch_test;
 };

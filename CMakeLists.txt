@@ -22,8 +22,7 @@ set(LITHE_DONT_BUILD_TESTS true)
 ExternalProject_Add(
 	Lithe
 	GIT_REPOSITORY "git@github.com:akshay1992/Lithe.git"
-  	# GIT_TAG "master"
-  	GIT_TAG "deprecating_sink"
+  	GIT_TAG "master"
     UPDATE_DISCONNECTED 1	# Don't update everytime you build
 
     PREFIX ${CMAKE_BINARY_DIR}/Lithe

@@ -28,7 +28,7 @@ namespace al{
 // };
 
 
-class NodeNotFoundException : std::range_error
+class NodeNotFoundException : public std::range_error
 {
 public:
 	NodeNotFoundException(int id) : std::range_error("Module not registered"), moduleID(id) {}

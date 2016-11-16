@@ -65,9 +65,9 @@ public:
 	*/
 	virtual void onSound(al::AudioIOData& io);
 
-	void patch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
+	void patch(NodeInfo& destination_node, int inlet_index, NodeInfo& source_node, int outlet_index);
 
-	void unpatch(int destination_nodeID, int inlet_index, int source_nodeID, int outlet_index);
+	void unpatch(NodeInfo& destination_node, int inlet_index, NodeInfo& source_node, int outlet_index);
 
 	bool unpatch_from_inlet(int nodeID, int inlet_index);
 
@@ -103,6 +103,11 @@ public:
 
 	ModuleInfo& getModuleInfo(int moduleID);
 
+	/// @brief List of active nodes that are managed by this SoundEngine
+	std::vector<NodeInfo>& activeNodes(void) { return InstantiatedNodes; }
+
+	/// @brief Number of active nodes that are managed by this SoundEngine
+	int numActiveNodes(void) { return InstantiatedNodes.size(); }
 
 private:
 	struct ModuleIndexPair
