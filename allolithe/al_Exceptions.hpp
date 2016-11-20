@@ -7,6 +7,23 @@
 
 namespace al{
 
+class ParametersNotInstantiatedException : public std::range_error
+{
+public:
+	ParametersNotInstantiatedException(int id) : std::range_error("Parameters not instantiated"), nodeID(id) {}
+	virtual const char* what() const throw()
+  	{
+	    message.str( "" );
+	    message << std::range_error::what() << "   NodeID: " << std::to_string(nodeID);
+	    return message.str().c_str();
+	}
+
+private:
+	int nodeID;
+    static std::ostringstream message;
+};
+
+
 class NodeNotFoundException : public std::range_error
 {
 public:

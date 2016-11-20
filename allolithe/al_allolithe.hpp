@@ -4,6 +4,7 @@
 
 #include "allolithe/al_Exceptions.hpp"
 
+#include "allolithe/al_Atlas.hpp"
 #include "allolithe/al_Module.hpp"
 #include "allolithe/al_SinkModule.hpp"
 #include "allolithe/al_SoundEngine.hpp"

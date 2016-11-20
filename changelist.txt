@@ -34,3 +34,10 @@ Nov 16
 Changed Lithe branch to master
 modified API for patch and unpatch to use NodeInfo
 passing tests: soundengine patch and unpatch tests
+
+--------------
+Nov 20
+Added a wrapper class for lithe Atlas so that distances can be dealt with. 
+Spherical atlas is written and tested. Works as expected with a linear distance mapping.
+Added a parameter not instantiated exception (for ease of debugging) within al::Module
+

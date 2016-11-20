@@ -10,7 +10,11 @@ Module::Module(int numInlets, int numOutlets, int numParameters) :
 
 al::Parameter& Module::parameter(int index)
 {
-	if( index < 0 || index >= numParams() )
+	if( index < 0) 
+	{
+		throw ParametersNotInstantiatedException(getNodeID());
+	}
+	else if ( index >= numParams() )
 	{
 		throw std::range_error("Parameter index not valid");
 	}
