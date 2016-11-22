@@ -1,12 +1,8 @@
 #ifndef AL_ATLAS_HPP
 #define AL_ATLAS_HPP
 
-#include "Lithe/Atlas.h"
-#include "Lithe/SphericalAtlas.h"
-#include "Lithe/Sample.h"
-
+#include "Lithe/LitheCore.h"
 #include "allocore/math/al_Vec.hpp"
-#include "allocore/spatial/al_DistAtten.hpp"
 
 namespace al{
 
@@ -29,76 +25,54 @@ public:
 	virtual al::Vec3d NormalVector(float u, float v)=0;
 };
 
-//-------------------------SPHERICAL ATLAS------------------------------------
 
-/// @brief Used to scale radius differently for into/outof the spherical surface
-class PiecewiseRadiusScaler
+/** @brief Used to scale radius based on a distance parameter ranging [-1, 1]
+
+	@param [nearClipMul] is the multiplier returned at d = +1
+	@param [farClipMul] is the multiplier returned at d = -1
+
+	Returns a multiplier 1.0 at d = 0, and nearClipMul and farClipMul at d = +1, and d = -1 respectively
+	This is mapped as two line segments, one for d > 0 and one for d < 0
+*/
+class PiecewiseLinearScaler
 {
 public:
-	PiecewiseRadiusScaler(float nearClipMul=0.0, float farClipMul=2)
-	: near(nearClipMul), far(farClipMul) {}
+	PiecewiseLinearScaler(float nearClipMul=0.0, float farClipMul=2);
 
-	float getMul(float d)
-	{
-		if( d == 0 ) return 1.0;
-		else if( d < 0) 
-			return (1-far)*d + 1.0;
-		else if(d > 0)
-			return (near-1)*d + 1.0;
-	}
+	float getMul(float d);
 
-	float get_d(float mul)
-	{
-		if (mul == 1) return 0.0;
-		else if( mul > 1)
-			return (mul-1.0) / (1-far);
-		else if ( mul < 1 )
-			return (mul-1.0) / (near-1);
-	}
+	float get_d(float mul);
 
+private:
 	float near;
 	float far;
 };
 
+//-------------------------SPHERICAL ATLAS------------------------------------
+
+/** @brief A spherical atlas that maps distance as projected on the surface
+
+*/ 
+
 class SphericalAtlas : public AtlasWrapper<lithe::SphericalAtlas>
 { 
 public:
-	SphericalAtlas( float radius=1, lithe::RangeT<float> u_range = lithe::RangeT<float>(-1,1), lithe::RangeT<float> v_range = lithe::RangeT<float>(-1, 1))
-	{
-		mAtlas = lithe::SphericalAtlas(radius, u_range, v_range);
-	}
+	SphericalAtlas( float radius=1, lithe::RangeT<float> u_range = lithe::RangeT<float>(-1,1), lithe::RangeT<float> v_range = lithe::RangeT<float>(-1, 1));
 
-	virtual al::Vec3d getXYZ(float u, float v, float d) override 
-	{
-		return NormalVector(u, v) * -1 * scaler.getMul(d);
-	}
+	virtual al::Vec3d getXYZ(float u, float v, float d) override;
 
-	virtual al::Vec3d getXYZ(lithe::Sample& s) override 
-	{
-		return NormalVector(s.az, s.el) * -1 * scaler.getMul(s.d);
-	}
+	virtual al::Vec3d getXYZ(lithe::Sample& s) override;
 
-	virtual al::Vec3d getUVD(float x, float y, float z) override
-	{
-		float mul = lithe::SphericalAtlas::radius(x, y, z) / mAtlas.getRadius(); 
-		float x_mul = x / mul;
-		float y_mul = y / mul;
-		float z_mul = z / mul;
-		return al::Vec3d( mAtlas.u_cart(x_mul, y_mul, z_mul), mAtlas.v_cart(x_mul, y_mul, z_mul), scaler.get_d(mul) );
-	}
+	virtual al::Vec3d getUVD(float x, float y, float z) override;
 	
-	virtual al::Vec3d getUVD(al::Vec3d& xyz) override 
-	{
-		return getUVD(xyz[0], xyz[1], xyz[2]);
-	}
+	virtual al::Vec3d getUVD(al::Vec3d& xyz) override;
 
-	virtual al::Vec3d NormalVector(float u, float v) override
-	{
-		// vector points towards Positive D (in this case, towards centre of sphere)
-		return al::Vec3d( -1*mAtlas.x(u, v), -1*mAtlas.y(u, v), -1*mAtlas.z(u, v));
-	}
-	
-	PiecewiseRadiusScaler scaler;
+	/// @brief returns the normal vector to the surface of the sphere at that point (pointing towards the centre of the sphere)
+	virtual al::Vec3d NormalVector(float u, float v) override;
+
+private:	
+	/// @brief used to modulate the distance based on the d signal
+	PiecewiseLinearScaler scaler;
 };
 
 
