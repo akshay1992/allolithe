@@ -41,3 +41,9 @@ Added a wrapper class for lithe Atlas so that distances can be dealt with.
 Spherical atlas is written and tested. Works as expected with a linear distance mapping.
 Added a parameter not instantiated exception (for ease of debugging) within al::Module
 
+-------------
+Nov 22
+Added std::map for RegisteredModules and InstantiatedNodes in SoundEngine
+Passes tests.
+
+------------

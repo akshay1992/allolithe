@@ -104,31 +104,18 @@ public:
 	ModuleInfo& getModuleInfo(int moduleID);
 
 	/// @brief List of active nodes that are managed by this SoundEngine
-	std::vector<NodeInfo>& activeNodes(void) { return InstantiatedNodes; }
+	std::vector<NodeInfo> activeNodes(void);
 
 	/// @brief Number of active nodes that are managed by this SoundEngine
 	int numActiveNodes(void) { return InstantiatedNodes.size(); }
 
 private:
-	struct ModuleIndexPair
-	{
-		int moduleID;
-		int info_index;
-	};
-
 	int is_instantiated(int nodeID);
 
 	al::SinkModule* sink_ref = NULL;
-	// std::vector<int> instantiatedNodeIDs = std::vector<int>();
-	// std::vector<std::string> ModuleNames = std::vector<std::string>();
-	// std::vector<ModuleFactoryFunction> ModuleConstructors =  std::vector<ModuleFactoryFunction>();
-	std::vector<ModuleInfo> RegisteredModules = std::vector<ModuleInfo>();
-	std::vector<NodeInfo> InstantiatedNodes = std::vector<NodeInfo>();
-	std::vector<ModuleIndexPair> ModuleIndexHash = std::vector<ModuleIndexPair>();
-
-	int get_module_info_index(int moduleID) ;
-
-
+	std::map<int, ModuleInfo> RegisteredModules;
+	// std::vector<NodeInfo> InstantiatedNodes = std::vector<NodeInfo>();
+	std::map<int, NodeInfo> InstantiatedNodes;
 };
 
 /// @brief Returns the default instance of the SoundEngine (instantited as a static within this function)

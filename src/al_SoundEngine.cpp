@@ -16,31 +16,27 @@ al::SoundEngine& DefaultSoundEngine(void)
 
 NodeInfo SoundEngine::instantiateModule(int moduleID)
 {
-	int info_index = get_module_info_index(moduleID);
-
-	if( info_index >= 0 && info_index < ModuleIndexHash.size() )
+	try 
 	{
+		ModuleInfo& module = RegisteredModules.at(moduleID);
 		NodeInfo node_info;
-		node_info.nodeID = RegisteredModules[info_index].factory_function();
+
+		node_info.nodeID = module.factory_function();
 		node_info.moduleID = moduleID;
-		InstantiatedNodes.push_back(node_info);
-		std::cout << 
-		"Instantiated module " << RegisteredModules[info_index].moduleName << 
-		" with ID " <<  node_info.nodeID << std::endl;
+		
+		InstantiatedNodes[node_info.nodeID] = node_info;
+		std::cout << "Instantiated module " << module.moduleName << " with ID " <<  node_info.nodeID << std::endl;
+
 		return node_info;
 	}
-		else
+	catch(std::out_of_range e)
 	{
 		throw ModuleNotRegisteredException(moduleID);
 	}
-
-	// if( moduleID > ModuleNames.size()-1 || moduleID < 0 ) 
-	// else
-	// {		
-	// 	instantiatedNodeIDs.push_back(ModuleConstructors[moduleID]());
-	// 	std::cout << "Instantiated module " << ModuleNames[moduleID] << " with ID " <<  instantiatedNodeIDs.back() << std::endl;
-	// 	return instantiatedNodeIDs.back();
-	// }
+	catch(std::exception e)
+	{
+		throw std::runtime_error(e.what());
+	}
 }
 
 void SoundEngine::deleteModuleInstance(int nodeID)
@@ -60,29 +56,8 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 	}
 
 	delete &al::Module::getModuleRef(nodeID);
-	InstantiatedNodes.erase(InstantiatedNodes.begin()+index);
+	InstantiatedNodes.erase(nodeID);
 	return;
-
-	// for(int i=0; i<InstantiatedNodes.size(); ++i)
-	// {
-	// 	if( InstantiatedNodes[i].nodeID == nodeID )
-	// 	{
-	// 		if( getSink().getNodeID() == nodeID)
-	// 		{
-	// 			throw CannotDeleteActiveSinkException();
-	// 		}
-	// 		else
-	// 		{
-	// 			InstantiatedNodes.erase(InstantiatedNodes.begin()+i);
-	// 			delete &al::Module::getModuleRef(nodeID);
-	// 			return;
-	// 		}
-	// 		// instantiatedNodeIDs.erase(instantiatedNodeIDs.begin()+i);
-	// 		// delete &al::Module::getModuleRef(nodeID);
-	// 		// return;
-	// 	}
-	// }
-	// throw std::runtime_error("Unable to find node with ID:"+std::to_string(nodeID));
 }
 
 void SoundEngine::onSound(al::AudioIOData& io)
@@ -99,10 +74,17 @@ int SoundEngine::setAndInstantiateSink(int sink_module_id)
 
 void SoundEngine::setSink(int sink_node_id, int sink_module_id)
 {
-	sink_ref = &al::SinkModule::getSinkModuleRef(sink_node_id);
-
-	int info_index = get_module_info_index(sink_module_id);
-	std::cout << "Setting Sink as: " << RegisteredModules[info_index].moduleName << std::endl;
+	try
+	{
+		ModuleInfo& info = RegisteredModules[sink_module_id];
+		std::cout << "Setting Sink as: " << info.moduleName << std::endl;
+		sink_ref = &al::SinkModule::getSinkModuleRef(sink_node_id);
+	}
+	catch(std::out_of_range e)
+	{
+		throw ModuleNotRegisteredException(sink_node_id);
+		sink_ref = NULL;
+	}
 }
 
 al::SinkModule& SoundEngine::getSink(void) 
@@ -128,20 +110,8 @@ ModuleInfo SoundEngine::RegisterModule(std::string module_name, ModuleFactoryFun
 	info.isASink = is_a_sink_module; 
 	info.factory_function = module_factory_function;
 
-	RegisteredModules.push_back(info);
-
-	ModuleIndexPair p;
-	p.moduleID = info.moduleID;
-	p.info_index = RegisteredModules.size() - 1;
-
-	ModuleIndexHash.push_back(p);
-
-	// ModuleNames.push_back(module_name);
-	// ModuleConstructors.push_back(module_factory_function);
-
-	// int module_id = ModuleConstructors.size() - 1;
-	// std::cout << "Registered Module: " << info.moduleName << "  ID: " << info.moduleID << std::endl;
-
+	RegisteredModules[info.moduleID] = info; 	// Add to std::map of modules
+	std::cout << "Registered Module: " << info.moduleName << "  ID: " << info.moduleID << std::endl;
 	return info;
 }
 
@@ -238,50 +208,37 @@ bool SoundEngine::unpatch_from_inlet(int nodeID, int inlet_index)
 	}
 }
 
+std::vector<NodeInfo> SoundEngine::activeNodes(void)
+{
+	std::vector<NodeInfo> active_nodes;
+	for(std::map<int, NodeInfo>::iterator it = InstantiatedNodes.begin(); it != InstantiatedNodes.end(); ++it) 
+	{
+		active_nodes.push_back(it->second);
+	}
+
+	return active_nodes;
+}
+
 bool SoundEngine::isRunning(void)
 {
 	return getSink().isRunning(); 
 }
 
-int SoundEngine::get_module_info_index(int moduleID) 
-{
-	int info_index = -1;
-
-	for(int i=0; i<ModuleIndexHash.size(); ++i)
-	{
-		if( ModuleIndexHash[i].moduleID == moduleID)
-		{
-			info_index = ModuleIndexHash[i].info_index;
-		}
-	}
-
-	if( info_index == -1 )
-	{
-		throw ModuleNotRegisteredException(moduleID);
-	}
-	else
-	{
-		return info_index;
-	}
-}
-
 int SoundEngine::is_instantiated(int nodeID)
 {
-	for(int i=0; i<InstantiatedNodes.size(); ++i )
+	try 
 	{
-		if( InstantiatedNodes[i].nodeID == nodeID)
-		{
-			return i;
-		}
+		InstantiatedNodes.at(nodeID);
 	}
-	
-	throw NodeNotFoundException(nodeID);
+	catch( std::out_of_range e) 
+	{
+		throw NodeNotFoundException(nodeID);
+	}
 }
 
 ModuleInfo& SoundEngine::getModuleInfo(int moduleID)
 {
-	int index = get_module_info_index(moduleID);
-	return RegisteredModules[index];
+	return RegisteredModules.at(moduleID);
 }
 
 }; //namespace al
