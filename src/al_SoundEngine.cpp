@@ -25,7 +25,7 @@ NodeInfo SoundEngine::instantiateModule(int moduleID)
 		node_info.moduleID = moduleID;
 		
 		InstantiatedNodes[node_info.nodeID] = node_info;
-		std::cout << "Instantiated module " << module.moduleName << " with ID " <<  node_info.nodeID << std::endl;
+		std::cout << "Instantiated module: " << module.moduleName << " NodeID: " <<  node_info.nodeID << std::endl;
 
 		return node_info;
 	}
@@ -215,8 +215,17 @@ std::vector<NodeInfo> SoundEngine::activeNodes(void)
 	{
 		active_nodes.push_back(it->second);
 	}
-
 	return active_nodes;
+}
+
+std::vector<ModuleInfo> SoundEngine::getRegisteredModules(void)
+{
+	std::vector<ModuleInfo> available_modules;
+	for(std::map<int, ModuleInfo>::iterator it = RegisteredModules.begin(); it != RegisteredModules.end(); ++it) 
+	{
+		available_modules.push_back(it->second);
+	}
+	return available_modules;
 }
 
 bool SoundEngine::isRunning(void)
@@ -239,6 +248,11 @@ int SoundEngine::is_instantiated(int nodeID)
 ModuleInfo& SoundEngine::getModuleInfo(int moduleID)
 {
 	return RegisteredModules.at(moduleID);
+}
+
+NodeInfo& SoundEngine::getNodeInfo(int nodeID)
+{
+	return InstantiatedNodes.at(nodeID);
 }
 
 }; //namespace al

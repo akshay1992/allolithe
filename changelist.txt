@@ -46,4 +46,7 @@ Nov 22
 Added std::map for RegisteredModules and InstantiatedNodes in SoundEngine
 Passes tests.
 
-------------
+-----------
+Nov 23
+Finished Patcher GUI
+Seg faults when instantiating from GUI. Instantiates fine when done via code. (BUG)

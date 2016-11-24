@@ -103,11 +103,16 @@ public:
 
 	ModuleInfo& getModuleInfo(int moduleID);
 
+	NodeInfo& getNodeInfo( int nodeID);
+
 	/// @brief List of active nodes that are managed by this SoundEngine
 	std::vector<NodeInfo> activeNodes(void);
 
 	/// @brief Number of active nodes that are managed by this SoundEngine
 	int numActiveNodes(void) { return InstantiatedNodes.size(); }
+
+	/// @brief Gets a vector of all registered modules
+	std::vector<ModuleInfo> getRegisteredModules(void);
 
 private:
 	int is_instantiated(int nodeID);
