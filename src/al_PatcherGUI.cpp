@@ -10,6 +10,7 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 	module_selector(sound_engine_ref),
 	run_button(sound_engine_ref)
 {
+	name("LithePatcherGUI");
 	module_selector.refreshLlist();
 	(*this).add(module_selector);
 	(*this).add(run_button);
@@ -22,14 +23,8 @@ void PatcherGUI::openWindow(void)
 	glv::Application::run();
 }
 
-bool PatcherGUI::onEvent(glv::Event::t e, glv::GLV& glv)
+void PatcherGUI::onDraw(glv::GLV& g)
 {
-	switch(e){
-	// case glv::Event::MouseDrag:	return false;
-	// case glv::Event::MouseDown: return false;
-	// case glv::Event::KeyDown:  return false;
-	}
-	return true;	// bubble unrecognized events to parent
 }
 
 PatcherGUI::~PatcherGUI(void)

@@ -50,3 +50,11 @@ Passes tests.
 Nov 23
 Finished Patcher GUI
 Seg faults when instantiating from GUI. Instantiates fine when done via code. (BUG)
+
+-----------
+Nov 24-25
+Removed GLV view stuff from al_Module
+Refined PatcherGUI to add a module istantiator. (this works as expected)
+Added a ModuleGUI - similar to parameter GUI. No callbacks for value change added. 
+Patching functionality is working logically (nothing drawn) 
+Added a sinkIsSet in SoundEngine 

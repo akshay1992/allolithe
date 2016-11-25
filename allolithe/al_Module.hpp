@@ -44,10 +44,6 @@ public:
 
 	static Module& getModuleRef(int nodeID);
 
-	virtual glv::View& createView(bool debugging = false);
-
-	friend glv::View& createDefaultView(al::Module& module, bool debugging);
-
 	/// @brief NodeID is the ID of this module as a node in the audiograph
 	int getNodeID() { return getID(); }
 
@@ -60,9 +56,6 @@ private:
 	using lithe::Node::getID;
 	using lithe::Node::getNodeRef;
 };
-
-/// @brief Creates a basic GLV View of showing all the parameters
-glv::View& createDefaultView(al::Module& module, bool debugging=false);
 
 }; // namespace al
 

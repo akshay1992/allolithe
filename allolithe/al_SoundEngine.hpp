@@ -73,6 +73,9 @@ public:
 
 	/// @brief Set the sink from which SoundEngine must process the audiograph. Automatically instantiates and returns the nodeID of the sink
 	int setAndInstantiateSink(int sink_module_id) ;
+
+	/// @brief Returns true if an active sink exists
+	bool sinkIsSet(void) { return (sink_ref != NULL); }
 	
 	///@brief Set the sink from which SoundEngine must process the audiograph. Must already be instantiated
 	void setSink(int sink_node_id, int sink_module_id);
