@@ -7,7 +7,42 @@
 #include "allolithe/al_allolithe.hpp"
 #include "allolithe/al_PatcherGUIComponents.hpp"
 
+#define VERTICES_SIZE 2
 namespace al{
+
+struct PatchInfo
+{
+	Inlets* inlets;
+	int inlet_index;
+	Outlets* outlets;
+	int outlet_index;
+};
+
+
+// class Patcher : public glv::View3D
+// {
+// public:
+// 	Patcher(void)
+// 	{
+// 		PatchCable* p = new PatchCable;
+// 		p->vertices[0] = glv::Point2(0,0);
+// 		p->vertices[1] = glv::Point2(100,100);
+
+// 		patches.push_back(*p);
+// 	}
+// 	virtual void onDraw2D(glv::GLV& g) override;
+
+// 	// const int  = 2;
+
+// 	struct PatchCable {
+// 		PatchInfo info;
+// 		glv::Point2 vertices[VERTICES_SIZE];
+// 	};
+	
+// 	std::vector< PatchCable > patches;
+
+// };
+
 
 /** @brief A UI for patching allolithe Modules
 
@@ -21,6 +56,14 @@ public:
 
 	virtual void onDraw(glv::GLV& g) override;
 
+	static void onPatch(const glv::Notification &n)
+	{
+		cout << " Trying to patch something here" << endl;
+		// PatchInfo* p = (PatchInfo*) n.data();
+		// cout << p->outlet_index << " <---->  " ;
+		// cout << p->inlet_index << endl;;
+	}
+
 	~PatcherGUI(void);
 
 	al::SoundEngine& sound_engine_ref;
@@ -29,6 +72,9 @@ private:
 	RunStopButton run_button;
 	QuitButton quit_button;
 	ModuleList module_selector;
+	// Patcher patcher;
+
+	glv::GLV* top_view;
 
 	glv::Window* win;
 };

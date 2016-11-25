@@ -18,12 +18,11 @@ class Outlets;
 class MouseUpOutletEvent : public glv::EventHandler
 {
 public: 
-	MouseUpOutletEvent(Outlets& outlets) : outlets_ref(outlets)
-	{	}
+	MouseUpOutletEvent(Outlets& outlets);
 
 	virtual bool onEvent(glv::View &v, glv::GLV &g);
 
-
+	glv::Notifier notifier;
 	Outlets& outlets_ref;
 };
 
@@ -59,14 +58,6 @@ public:
 
 		(*this) << buttons;
 		fit();
-	}
-
-	virtual bool onEvent( glv::Event::t e, glv::GLV& g)
-	{
-		if( e == glv::Event::FocusGained) 
-		{
-			cout << "Focus> < " <<  endl;
-		}
 	}
 
 	virtual void onDraw( glv::GLV& g)
@@ -127,7 +118,7 @@ public:
 	al::Module& module;
 	int selected_inlet = -1;
 	static int last_selected_inlet_index;
-	static int last_selected_node_id;
+	static Inlets* last_selected_inlets_ref;
 	glv::Buttons* buttons;
 	MouseUpInletEvent mouseUpInletEvent;
 };

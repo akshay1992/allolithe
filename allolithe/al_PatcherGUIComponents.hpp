@@ -9,7 +9,7 @@
 /// @brief THis file contains all the GUI components used by al::PatcherGUI
 
 namespace al{
-
+	
 struct InstantiateModuleEvent : public glv::EventHandler
 {
 	InstantiateModuleEvent(al::SoundEngine& se, int& selected_module_id, glv::Buttons& b) : 

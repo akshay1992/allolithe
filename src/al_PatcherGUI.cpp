@@ -15,7 +15,21 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 	(*this).add(module_selector);
 	(*this).add(run_button);
 	(*this).add(quit_button);
+	// (*this).add(patcher);
 }
+
+
+// void Patcher::onDraw2D(glv::GLV& g)
+// {
+// 	using namespace glv::draw;
+// 	stroke(2);
+
+// 	for( PatchCable& p : patches)
+// 	{
+// 		paint( 1, p.vertices, VERTICES_SIZE);
+// 	}
+
+// }
 
 void PatcherGUI::openWindow(void)
 {

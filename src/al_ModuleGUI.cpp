@@ -1,19 +1,24 @@
 #include "allolithe/al_ModuleGUI.hpp"
+#include "allolithe/al_PatcherGUI.hpp"
 
 namespace al {
 
 int Inlets::last_selected_inlet_index = -1;
-int Inlets::last_selected_node_id = -1;
+Inlets* Inlets::last_selected_inlets_ref = NULL;
 
 bool MouseUpInletEvent::active = false;
+
+MouseUpOutletEvent::MouseUpOutletEvent(Outlets& outlets) : outlets_ref(outlets)
+{	
+	notifier.attach(al::PatcherGUI::onPatch, glv::Update::User);
+}
 
 bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 {	
 	if( ! MouseUpInletEvent::active )
 	{
-		cout << "  INLET " << inlets_ref.selected_inlet << endl;;
 		Inlets::last_selected_inlet_index = inlets_ref.selected_inlet;
-		Inlets::last_selected_node_id = inlets_ref.module.getNodeID();
+		Inlets::last_selected_inlets_ref = &inlets_ref;
 		MouseUpInletEvent::active = true;
 	}	
 	return false;
@@ -23,14 +28,15 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 {	
 	if ( MouseUpInletEvent::active )
 	{
-		cout << " Trying to connect inlet : " << Inlets::last_selected_inlet_index << "  NODE: " << Inlets::last_selected_node_id << endl;
-		cout << "..With " << outlets_ref.selected_outlet << outlets_ref.module.getNodeID() << endl;
+		PatchInfo* p = new PatchInfo ;
+		p->inlet_index = Inlets::last_selected_inlet_index;
+		p->inlets = Inlets::last_selected_inlets_ref;
+		p->outlets = &outlets_ref;
+		p->outlet_index = outlets_ref.selected_outlet;
 
-		cout << "Connected" << endl;
-
+		notifier.notify(glv::Update::User, p);
 		MouseUpInletEvent::active = false;
 	}
-
 	return false;
 }
 
