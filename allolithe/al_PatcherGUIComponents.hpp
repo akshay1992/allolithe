@@ -75,6 +75,7 @@ public:
 		for( ModuleInfo& module : modules )
 		{
 			buttons << (new glv::Label(module.moduleName))->anchor(0.5, y).pos(glv::Place::CC);
+			cout << "POOPY" <<endl;
 			y+=dy;
 		}
 

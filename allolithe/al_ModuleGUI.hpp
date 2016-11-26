@@ -7,9 +7,7 @@
 #include "allolithe/al_Module.hpp"
 
 #include <iostream>
-#include <string>
 using namespace std;
-
 namespace al{
 
 class Inlets;

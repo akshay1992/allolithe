@@ -16,6 +16,7 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 	(*this).add(run_button);
 	(*this).add(quit_button);
 	// (*this).add(patcher);
+
 }
 
 
@@ -37,14 +38,27 @@ void PatcherGUI::openWindow(void)
 	glv::Application::run();
 }
 
+al::ViewpointWindow& PatcherGUI::createAlloWindow(void)
+{
+	top_view = new al::GLVDetachable;
+	(*top_view) << (this);
+	allo_win = new al::ViewpointWindow({800, 600}, "LitheModular");
+	top_view->parentWindow(*allo_win);
+	
+	// win = new glv::Window(800,600, "LitheModular", this);
+	return *allo_win;
+}
+
 void PatcherGUI::onDraw(glv::GLV& g)
 {
 }
 
 PatcherGUI::~PatcherGUI(void)
 {
-// 	if (win != NULL)
-// 		delete win;
+	if (win != NULL)
+		delete win;
+	if (allo_win != NULL)
+		delete allo_win;
 }
 
 

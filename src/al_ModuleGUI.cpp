@@ -28,14 +28,27 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 {	
 	if ( MouseUpInletEvent::active )
 	{
-		PatchInfo* p = new PatchInfo ;
-		p->inlet_index = Inlets::last_selected_inlet_index;
-		p->inlets = Inlets::last_selected_inlets_ref;
-		p->outlets = &outlets_ref;
-		p->outlet_index = outlets_ref.selected_outlet;
+		// TODO: move this to a patching callback in PatcherGUI 
+		// (so that drawing can happen simultaneously)
 
-		notifier.notify(glv::Update::User, p);
+		lithe::Patcher::connect(
+			Inlets::last_selected_inlets_ref->module.getInlet(Inlets::last_selected_inlet_index), 
+			outlets_ref.module.getOutlet(outlets_ref.selected_outlet) 
+			);
+
+
+		// std::unique_ptr<PatchInfo> p( & PatchInfo() );
+		// p->inlet_index = Inlets::last_selected_inlet_index;
+		// p->inlets = Inlets::last_selected_inlets_ref;
+		// p->outlets = &outlets_ref;
+		// p->outlet_index = outlets_ref.selected_outlet;
+
+		// notifier.notify(glv::Update::User, (void* )p);
 		MouseUpInletEvent::active = false;
+	}
+	else
+	{
+		outlets_ref.buttons->setValue(0, outlets_ref.selected_outlet);
 	}
 	return false;
 }

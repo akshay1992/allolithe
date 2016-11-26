@@ -7,6 +7,9 @@
 #include "allolithe/al_allolithe.hpp"
 #include "allolithe/al_PatcherGUIComponents.hpp"
 
+#include <iostream> 
+using namespace std;
+
 #define VERTICES_SIZE 2
 namespace al{
 
@@ -64,18 +67,22 @@ public:
 		// cout << p->inlet_index << endl;;
 	}
 
+	al::ViewpointWindow& createAlloWindow(void);
+
 	~PatcherGUI(void);
 
-	al::SoundEngine& sound_engine_ref;
+	// void setParentWindow(al::Window& win) { top_view->parentWindow(win); }
+
+	al::GLVDetachable* top_view;
 
 private:
+	al::SoundEngine& sound_engine_ref;
 	RunStopButton run_button;
 	QuitButton quit_button;
 	ModuleList module_selector;
 	// Patcher patcher;
 
-	glv::GLV* top_view;
-
+	al::ViewpointWindow* allo_win;
 	glv::Window* win;
 };
 
