@@ -6,6 +6,7 @@
 
 #include "allolithe/al_Module.hpp"
 
+#include <memory>
 #include <iostream>
 using namespace std;
 namespace al{
@@ -48,13 +49,13 @@ public:
 		disable(glv::DrawGrid);
 
 		int numOutlets = module.numOutlets();
-		buttons = new glv::Buttons(glv::Rect(numOutlets*size, size), numOutlets, 1, true, true);
+		buttons = std::make_shared<glv::Buttons>(glv::Rect(numOutlets*size, size), numOutlets, 1, true, true);
 		buttons->addHandler(glv::Event::MouseUp, mouseUpOutletEvent);
 
 		buttons->enable(glv::Property::Controllable);
 		buttons->padding(5);
 
-		(*this) << buttons;
+		(*this) << buttons.get();
 		fit();
 	}
 
@@ -73,7 +74,7 @@ public:
 
 	al::Module& module;
 	int selected_outlet = -1;
-	glv::Buttons* buttons;
+	std::shared_ptr<glv::Buttons> buttons;
 	MouseUpOutletEvent mouseUpOutletEvent;
 };
 
@@ -239,6 +240,7 @@ public:
 	Inlets* inlets;
 	Outlets* outlets;
 	const int pad = 10;
+	/// @brief container for patching information to be passed in the event of a patch
 	// const int padTop = 10;
 	// const int padBottom = 10;
 	glv::View* top;

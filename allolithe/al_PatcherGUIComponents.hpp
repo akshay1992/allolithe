@@ -10,6 +10,19 @@
 
 namespace al{
 	
+struct PatchInfo
+{
+	Inlets* inlets;
+	int inlet_index;
+	Outlets* outlets;
+	int outlet_index;
+
+	void print()
+	{
+		cout << inlet_index << " " << outlet_index << endl;
+	}
+};
+
 struct InstantiateModuleEvent : public glv::EventHandler
 {
 	InstantiateModuleEvent(al::SoundEngine& se, int& selected_module_id, glv::Buttons& b) : 
@@ -75,7 +88,6 @@ public:
 		for( ModuleInfo& module : modules )
 		{
 			buttons << (new glv::Label(module.moduleName))->anchor(0.5, y).pos(glv::Place::CC);
-			cout << "POOPY" <<endl;
 			y+=dy;
 		}
 

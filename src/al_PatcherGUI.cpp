@@ -32,6 +32,13 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 
 // }
 
+void PatchCallback(const glv::Notification &n)
+{
+	cout << " Trying to patch something here" << endl;
+	shared_ptr<PatchInfo> p = *n.receiver<shared_ptr<PatchInfo>>();
+	p->print();
+}
+
 void PatcherGUI::openWindow(void)
 {
 	win = new glv::Window(800,600, "LitheModular", this);

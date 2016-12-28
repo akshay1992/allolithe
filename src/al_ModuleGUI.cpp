@@ -10,7 +10,7 @@ bool MouseUpInletEvent::active = false;
 
 MouseUpOutletEvent::MouseUpOutletEvent(Outlets& outlets) : outlets_ref(outlets)
 {	
-	notifier.attach(al::PatcherGUI::onPatch, glv::Update::User);
+	notifier.attach(al::PatchCallback, glv::Update::Action);
 }
 
 bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
@@ -31,19 +31,18 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 		// TODO: move this to a patching callback in PatcherGUI 
 		// (so that drawing can happen simultaneously)
 
-		lithe::Patcher::connect(
-			Inlets::last_selected_inlets_ref->module.getInlet(Inlets::last_selected_inlet_index), 
-			outlets_ref.module.getOutlet(outlets_ref.selected_outlet) 
-			);
+		// lithe::Patcher::connect(
+		// 	Inlets::last_selected_inlets_ref->module.getInlet(Inlets::last_selected_inlet_index), 
+		// 	outlets_ref.module.getOutlet(outlets_ref.selected_outlet) 
+		// 	);
 
+		std::shared_ptr<al::PatchInfo> p;
+		p->inlet_index = Inlets::last_selected_inlet_index;
+		p->inlets = Inlets::last_selected_inlets_ref;
+		p->outlets = &outlets_ref;
+		p->outlet_index = outlets_ref.selected_outlet;
 
-		// std::unique_ptr<PatchInfo> p( & PatchInfo() );
-		// p->inlet_index = Inlets::last_selected_inlet_index;
-		// p->inlets = Inlets::last_selected_inlets_ref;
-		// p->outlets = &outlets_ref;
-		// p->outlet_index = outlets_ref.selected_outlet;
-
-		// notifier.notify(glv::Update::User, (void* )p);
+		notifier.notify(glv::Update::Action, &p);
 		MouseUpInletEvent::active = false;
 	}
 	else
