@@ -15,7 +15,8 @@ using namespace std;
 
 namespace al{
 
-void PatchCallback(const glv::Notification &n);
+/// @brief Called internally by the GUI components whenever a patch needs to be made
+
 
 /** @brief A UI for patching allolithe Modules
 
@@ -25,15 +26,14 @@ class PatcherGUI : public glv::GLV
 {
 public:
 	PatcherGUI(al::SoundEngine& sound_engine = al::DefaultSoundEngine());
+
 	void openWindow(void);
 
 	virtual void onDraw(glv::GLV& g) override;
 
-	al::ViewpointWindow& createAlloWindow(void);
+	static void onPatch(const glv::Notification &n);
 
 	~PatcherGUI(void);
-
-	// void setParentWindow(al::Window& win) { top_view->parentWindow(win); }
 
 	al::GLVDetachable* top_view;
 
@@ -43,8 +43,7 @@ private:
 	QuitButton quit_button;
 	ModuleList module_selector;
 
-	al::ViewpointWindow* allo_win;
-	glv::Window* win;
+	unique_ptr<glv::Window> win;
 };
 
 }; // namespace al

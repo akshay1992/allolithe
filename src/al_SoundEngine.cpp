@@ -55,6 +55,7 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 		/* Not deleting an active sink, it's all goooood */	
 	}
 
+	std::cout << "Deleting module: " << getModuleInfo(getNodeInfo(nodeID).moduleID).moduleName << " NodeID: " <<  nodeID << std::endl;
 	delete &al::Module::getModuleRef(nodeID);
 	InstantiatedNodes.erase(nodeID);
 	return;

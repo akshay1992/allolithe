@@ -15,8 +15,6 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 	(*this).add(module_selector);
 	(*this).add(run_button);
 	(*this).add(quit_button);
-	// (*this).add(patcher);
-
 }
 
 
@@ -32,40 +30,26 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 
 // }
 
-void PatchCallback(const glv::Notification &n)
+void PatcherGUI::onPatch(const glv::Notification &n)
 {
 	cout << " Trying to patch something here" << endl;
-	shared_ptr<PatchInfo> p = *n.receiver<shared_ptr<PatchInfo>>();
-	p->print();
+	shared_ptr<al::PatchInfo> p = *n.receiver<shared_ptr<PatchInfo>>();
+	// p->print();
 }
 
 void PatcherGUI::openWindow(void)
 {
-	win = new glv::Window(800,600, "LitheModular", this);
+	win.reset(new glv::Window(800,600, "LitheModular", this));
 	glv::Application::run();
-}
-
-al::ViewpointWindow& PatcherGUI::createAlloWindow(void)
-{
-	top_view = new al::GLVDetachable;
-	(*top_view) << (this);
-	allo_win = new al::ViewpointWindow({800, 600}, "LitheModular");
-	top_view->parentWindow(*allo_win);
-	
-	// win = new glv::Window(800,600, "LitheModular", this);
-	return *allo_win;
 }
 
 void PatcherGUI::onDraw(glv::GLV& g)
 {
+
 }
 
 PatcherGUI::~PatcherGUI(void)
 {
-	if (win != NULL)
-		delete win;
-	if (allo_win != NULL)
-		delete allo_win;
 }
 
 

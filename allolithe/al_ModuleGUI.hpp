@@ -5,14 +5,30 @@
 #include "GLV/glv_binding.h"
 
 #include "allolithe/al_Module.hpp"
+#include "allolithe/al_SoundEngine.hpp"
 
 #include <memory>
 #include <iostream>
 using namespace std;
 namespace al{
 
+
 class Inlets;
 class Outlets;
+
+struct PatchInfo
+{
+	int source_nodeID;
+	int inlet_index;
+	int destination_nodeID;
+	int outlet_index;
+
+	void print()
+	{
+		std::cout << source_nodeID << " " << inlet_index << " -- "<< destination_nodeID << " " << outlet_index  << std::endl;
+	}
+};
+
 
 class MouseUpOutletEvent : public glv::EventHandler
 {
@@ -37,18 +53,20 @@ public:
 	static bool active;
 };
 
+
 class Outlets : public glv::View
 {
 public:
-	Outlets(al::Module& module, int size = 15) : 
-		module(module), 
+	Outlets(al::SoundEngine& se, al::Module& module, int size = 15) : 
+		soundengine_ref(se),
+		module_ref(module), 
 		mouseUpOutletEvent(*this)
 	{
 		name("Outlets");
 		enable(glv::Property::Controllable);
 		disable(glv::DrawGrid);
 
-		int numOutlets = module.numOutlets();
+		int numOutlets = module_ref.numOutlets();
 		buttons = std::make_shared<glv::Buttons>(glv::Rect(numOutlets*size, size), numOutlets, 1, true, true);
 		buttons->addHandler(glv::Event::MouseUp, mouseUpOutletEvent);
 
@@ -72,7 +90,8 @@ public:
 		selected_outlet = -1;
 	}
 
-	al::Module& module;
+	al::Module& module_ref;
+	al::SoundEngine& soundengine_ref;
 	int selected_outlet = -1;
 	std::shared_ptr<glv::Buttons> buttons;
 	MouseUpOutletEvent mouseUpOutletEvent;
@@ -96,7 +115,6 @@ public:
 		buttons->enable(glv::Property::Controllable);
 		buttons->padding(5);
 
-		cout << "Initializing " << module.numInlets() << endl;
 		(*this) << buttons;
 		fit();
 	}
@@ -113,7 +131,7 @@ public:
 		}
 		selected_inlet = -1;
 	}
-
+	
 	al::Module& module;
 	int selected_inlet = -1;
 	static int last_selected_inlet_index;
@@ -122,14 +140,16 @@ public:
 	MouseUpInletEvent mouseUpInletEvent;
 };
 
+
 class ModuleGUI
 {
 public:
 
-	ModuleGUI(al::Module& module, std::string& moduleName) :
+	ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName) :
+		soundengine_ref(se), 
 		module_ref(module) 
 	{
-		mBox = new glv::Box(glv::Direction::S);
+		mBox.reset(new glv::Box(glv::Direction::S) );
 		mBox->pos(glv::Place::TL, 10, 0);
 		
 		addInlets();
@@ -137,12 +157,18 @@ public:
 		addParameters();
 		addOutlets();
 
-		top = new glv::View(glv::Rect(0, 0, mBox->width() + 2*pad, mBox->height()));
-		*top << mBox;
+		top.reset(new glv::View(glv::Rect(0, 0, mBox->width() + 2*pad, mBox->height())) );
+		*top << mBox.get();
 
 		top->addHandler(glv::Event::MouseDrag, glv::Behavior::mouseMove);
 		top->enable(glv::Property::Controllable);
 		top->enable(glv::Property::DrawBorder);
+	}
+
+	~ModuleGUI()
+	{
+		cout << "deleting module GUI" << endl;
+		soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
 	}
 
 	glv::View& getView(void) { return *top; }
@@ -156,7 +182,7 @@ public:
 
 	void addOutlets(void)
 	{	
-		outlets = new Outlets(module_ref, 15);
+		outlets = new Outlets(soundengine_ref, module_ref, 15);
 		outlets->pos(glv::Place::TL, 0, 0);
 		(*mBox) << outlets;
 	}
@@ -164,11 +190,11 @@ public:
 	void addName(std::string& moduleName, bool show_node_id=false)
 	{
 		if(show_node_id)
-			name_label = new glv::Label(moduleName+" NodeID: " +std::to_string(module_ref.getNodeID()));
+			name_label.reset( new glv::Label(moduleName+" NodeID: " +std::to_string(module_ref.getNodeID())) );
 		else
-			name_label = new glv::Label(moduleName);
+			name_label.reset( new glv::Label(moduleName) );
 		name_label->pos(10, 0);
-		(*mBox) << name_label;
+		(*mBox) << name_label.get();
 	}
 
 
@@ -215,18 +241,6 @@ public:
 		receiver.parameter->setNoCalls(value, &sender);
 	}
 
-	// static void valueChangedCallback(float value, void *sender, void *wrapper, void *blockThis) {
-	// 	WidgetWrapper *w = static_cast<WidgetWrapper *>(wrapper);
-	// 	if (wrapper != blockThis) {
-	// 		w->lock->lock(); // Is the setting of the value from the mouse also protected? Do we need to protect that?
-	// 		glv::Data &d = w->widget->data();
-	// 		d.assign<double>(value); // We need to assign this way to avoid triggering callbacks.
-	// 		w->lock->unlock();
-	// 	}
-	// }
-
-
-
 	struct WidgetWrapper
 	{
 		ParameterWrapper<float> *parameter;
@@ -235,17 +249,19 @@ public:
 		std::mutex *lock;
 	};
 
+
 public:
 	al::Module& module_ref;
+	al::SoundEngine& soundengine_ref;
 	Inlets* inlets;
 	Outlets* outlets;
 	const int pad = 10;
 	/// @brief container for patching information to be passed in the event of a patch
 	// const int padTop = 10;
 	// const int padBottom = 10;
-	glv::View* top;
-	glv::Box* mBox;
-	glv::Label* name_label;
+	unique_ptr<glv::View> top;
+	unique_ptr<glv::Box> mBox;
+	unique_ptr<glv::Label> name_label;
 	std::mutex mParameterGUILock;
 	std::vector<WidgetWrapper *> mWrappers;
 };
