@@ -15,18 +15,34 @@ namespace al{
 
 class Inlets;
 class Outlets;
+class ModuleGUI;
 
 struct PatchInfo
 {
+	PatchInfo(Inlets& inlets_ref, Outlets& outlets_ref) : inlets_ref(inlets_ref), outlets_ref(outlets_ref){}
 	int source_nodeID;
 	int inlet_index;
+	Inlets& inlets_ref;
+	
 	int destination_nodeID;
 	int outlet_index;
+	Outlets& outlets_ref;
 
 	void print()
 	{
 		std::cout << source_nodeID << " " << inlet_index << " -- "<< destination_nodeID << " " << outlet_index  << std::endl;
 	}
+};
+
+class ModuleGUIKeyDownEvent : public glv::EventHandler
+{
+public:
+	ModuleGUIKeyDownEvent(ModuleGUI& moduleGUI);
+	
+	virtual bool onEvent(glv::View &v, glv::GLV &g);
+
+	glv::Notifier notifier; // To notify patcher GUI
+	ModuleGUI& moduleGUI_ref;
 };
 
 
@@ -57,86 +73,42 @@ public:
 class Outlets : public glv::View
 {
 public:
-	Outlets(al::SoundEngine& se, al::Module& module, int size = 15) : 
-		soundengine_ref(se),
-		module_ref(module), 
-		mouseUpOutletEvent(*this)
-	{
-		name("Outlets");
-		enable(glv::Property::Controllable);
-		disable(glv::DrawGrid);
+	Outlets(al::SoundEngine& se, al::ModuleGUI& moduleGUI, int size = 15);
 
-		int numOutlets = module_ref.numOutlets();
-		buttons = std::make_shared<glv::Buttons>(glv::Rect(numOutlets*size, size), numOutlets, 1, true, true);
-		buttons->addHandler(glv::Event::MouseUp, mouseUpOutletEvent);
+	/// Gets to abs co-ordinate of the center of a given outlet
+	glv::Point2 getPatchPoint(int index);
+	
+	virtual void onDraw( glv::GLV& g) override;
 
-		buttons->enable(glv::Property::Controllable);
-		buttons->padding(5);
-
-		(*this) << buttons.get();
-		fit();
-	}
-
-	virtual void onDraw( glv::GLV& g)
-	{
-		for(int i=0; i<buttons->size(); ++i)
-		{
-			if(buttons->getValue(i) == 1)
-			{
-				selected_outlet = i;
-				return;
-			}
-		}
-		selected_outlet = -1;
-	}
-
-	al::Module& module_ref;
+	int numOutlets;
+	int size;
+	// al::Module& module_ref;
+	al::ModuleGUI& moduleGUI_ref;
 	al::SoundEngine& soundengine_ref;
 	int selected_outlet = -1;
-	std::shared_ptr<glv::Buttons> buttons;
+	std::unique_ptr<glv::Buttons> buttons;
 	MouseUpOutletEvent mouseUpOutletEvent;
 };
 
 class Inlets : public glv::View
 {
 public:
-	Inlets(al::Module& module, int size = 15) : 
-		module(module), 
-		mouseUpInletEvent(*this)
-	{
-		name("Inlets");
-		enable(glv::Property::Controllable);
-		disable(glv::DrawGrid);
+	Inlets(al::ModuleGUI& moduleGUI, int size = 15);
 
-		int numInlets = module.numInlets();
-		buttons = new glv::Buttons(glv::Rect(numInlets*size, size), numInlets, 1, true, false);
-		buttons->addHandler(glv::Event::MouseUp, mouseUpInletEvent);
+	/// Gets to abs co-ordinate of the center of a given inlet
+	glv::Point2 getPatchPoint(int index);
 
-		buttons->enable(glv::Property::Controllable);
-		buttons->padding(5);
+	virtual void onDraw( glv::GLV& g) override;
 
-		(*this) << buttons;
-		fit();
-	}
-
-	virtual void onDraw( glv::GLV& g)
-	{
-		for(int i=0; i<buttons->size(); ++i)
-		{
-			if(buttons->getValue(i) == 1)
-			{
-				selected_inlet = i;
-				return;
-			}
-		}
-		selected_inlet = -1;
-	}
+	int numInlets;
+	int size;
 	
-	al::Module& module;
+	// al::Module& module;
+	al::ModuleGUI& moduleGUI_ref;
 	int selected_inlet = -1;
 	static int last_selected_inlet_index;
 	static Inlets* last_selected_inlets_ref;
-	glv::Buttons* buttons;
+	unique_ptr<glv::Buttons> buttons;
 	MouseUpInletEvent mouseUpInletEvent;
 };
 
@@ -147,7 +119,8 @@ public:
 
 	ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName) :
 		soundengine_ref(se), 
-		module_ref(module) 
+		module_ref(module),
+		moduleGUIKeyDownEvent(*this)
 	{
 		mBox.reset(new glv::Box(glv::Direction::S) );
 		mBox->pos(glv::Place::TL, 10, 0);
@@ -163,11 +136,20 @@ public:
 		top->addHandler(glv::Event::MouseDrag, glv::Behavior::mouseMove);
 		top->enable(glv::Property::Controllable);
 		top->enable(glv::Property::DrawBorder);
+
+		top->addHandler(glv::Event::KeyDown, moduleGUIKeyDownEvent);
 	}
 
 	~ModuleGUI()
 	{
 		cout << "deleting module GUI" << endl;
+		
+		for( PatchInfo& p: patches)
+		{
+
+		}
+
+		top->remove();
 		soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
 	}
 
@@ -175,14 +157,14 @@ public:
 
 	void addInlets(void)
 	{
-		inlets = new Inlets(module_ref, 15);
+		inlets = new Inlets(*this, 15);
 		inlets->pos(glv::Place::TL, 0, 0);
 		(*mBox) << inlets;
 	}
 
 	void addOutlets(void)
 	{	
-		outlets = new Outlets(soundengine_ref, module_ref, 15);
+		outlets = new Outlets(soundengine_ref, *this, 15);
 		outlets->pos(glv::Place::TL, 0, 0);
 		(*mBox) << outlets;
 	}
@@ -204,6 +186,11 @@ public:
 		{
 			addParameter(module_ref.parameter(i));
 		}
+	}
+
+	void addPatch(PatchInfo& p)
+	{
+		patches.push_back(p);
 	}
 
 
@@ -249,8 +236,11 @@ public:
 		std::mutex *lock;
 	};
 
+	friend class Outlets;
+	friend class Inlets;
 
 public:
+	std::vector<PatchInfo> patches;
 	al::Module& module_ref;
 	al::SoundEngine& soundengine_ref;
 	Inlets* inlets;
@@ -259,6 +249,8 @@ public:
 	/// @brief container for patching information to be passed in the event of a patch
 	// const int padTop = 10;
 	// const int padBottom = 10;
+
+	ModuleGUIKeyDownEvent moduleGUIKeyDownEvent;
 	unique_ptr<glv::View> top;
 	unique_ptr<glv::Box> mBox;
 	unique_ptr<glv::Label> name_label;

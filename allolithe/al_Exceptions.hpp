@@ -49,16 +49,16 @@ public:
 class ModuleNotRegisteredException : std::range_error
 {
 public:
-	ModuleNotRegisteredException(int id) : std::range_error("Module not registered"), moduleID(id) {}
+	ModuleNotRegisteredException(std::string moduleName) : std::range_error("Module not registered"), moduleName(moduleName) {}
 	virtual const char* what() const throw()
   	{
 	    message.str( "" );
-	    message << std::range_error::what() << "   ID: " << std::to_string(moduleID);
+	    message << std::range_error::what() << "   Name: " << moduleName;
 	    return message.str().c_str();
 	}
 
 private:
-	int moduleID;
+	std::string moduleName;
     static std::ostringstream message;
 };
 

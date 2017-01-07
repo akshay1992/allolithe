@@ -15,7 +15,8 @@ using namespace std;
 
 namespace al{
 
-/// @brief Called internally by the GUI components whenever a patch needs to be made
+
+
 
 
 /** @brief A UI for patching allolithe Modules
@@ -31,13 +32,19 @@ public:
 
 	virtual void onDraw(glv::GLV& g) override;
 
+	/// @brief Called internally by the GUI components whenever a patch needs to be made
 	static void onPatch(const glv::Notification &n);
+
+	static void onUnPatch(const glv::Notification &n);
 
 	~PatcherGUI(void);
 
 	al::GLVDetachable* top_view;
 
+
+
 private:
+	static PatchChords patchChords;
 	al::SoundEngine& sound_engine_ref;
 	RunStopButton run_button;
 	QuitButton quit_button;

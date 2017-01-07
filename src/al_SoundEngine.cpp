@@ -14,24 +14,24 @@ al::SoundEngine& DefaultSoundEngine(void)
 	return *default_instance;
 }
 
-NodeInfo SoundEngine::instantiateModule(int moduleID)
+NodeInfo SoundEngine::instantiateModule(std::string moduleName)
 {
 	try 
 	{
-		ModuleInfo& module = RegisteredModules.at(moduleID);
+		ModuleInfo& module = RegisteredModules.at(moduleName);
 		NodeInfo node_info;
 
 		node_info.nodeID = module.factory_function();
-		node_info.moduleID = moduleID;
-		
+		node_info.moduleName = moduleName;
+
 		InstantiatedNodes[node_info.nodeID] = node_info;
-		std::cout << "Instantiated module: " << module.moduleName << " NodeID: " <<  node_info.nodeID << std::endl;
+		std::cout << "Instantiated module: " << node_info.moduleName << " NodeID: " <<  node_info.nodeID << std::endl;
 
 		return node_info;
 	}
 	catch(std::out_of_range e)
 	{
-		throw ModuleNotRegisteredException(moduleID);
+		throw ModuleNotRegisteredException(moduleName);
 	}
 	catch(std::exception e)
 	{
@@ -55,7 +55,7 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 		/* Not deleting an active sink, it's all goooood */	
 	}
 
-	std::cout << "Deleting module: " << getModuleInfo(getNodeInfo(nodeID).moduleID).moduleName << " NodeID: " <<  nodeID << std::endl;
+	std::cout << "Deleting module: " << getNodeInfo(nodeID).moduleName << " NodeID: " <<  nodeID << std::endl;
 	delete &al::Module::getModuleRef(nodeID);
 	InstantiatedNodes.erase(nodeID);
 	return;
@@ -66,24 +66,24 @@ void SoundEngine::onSound(al::AudioIOData& io)
 	getSink().onSound(io);
 }
 
-int SoundEngine::setAndInstantiateSink(int sink_module_id)
+int SoundEngine::setAndInstantiateSink(std::string moduleName)
 {
-	NodeInfo info = instantiateModule(sink_module_id);
-	setSink(info.nodeID, sink_module_id);
+	NodeInfo info = instantiateModule(moduleName);
+	setSink(info.nodeID, info.moduleName);
 	return info.nodeID;
 }
 
-void SoundEngine::setSink(int sink_node_id, int sink_module_id)
+void SoundEngine::setSink(int sink_node_id, std::string moduleName)
 {
 	try
 	{
-		ModuleInfo& info = RegisteredModules[sink_module_id];
+		ModuleInfo& info = RegisteredModules.at(moduleName);
 		std::cout << "Setting Sink as: " << info.moduleName << std::endl;
 		sink_ref = &al::SinkModule::getSinkModuleRef(sink_node_id);
 	}
 	catch(std::out_of_range e)
 	{
-		throw ModuleNotRegisteredException(sink_node_id);
+		throw ModuleNotRegisteredException(moduleName);
 		sink_ref = NULL;
 	}
 }
@@ -107,12 +107,13 @@ ModuleInfo SoundEngine::RegisterModule(std::string module_name, ModuleFactoryFun
 
 	ModuleInfo info;
 	info.moduleName = module_name;
-	info.moduleID = RegisteredModules.size() + MODULE_ID_OFFSET;
+	// info.moduleID = RegisteredModules.size() + MODULE_ID_OFFSET;
+	info.moduleName = module_name;
 	info.isASink = is_a_sink_module; 
 	info.factory_function = module_factory_function;
 
-	RegisteredModules[info.moduleID] = info; 	// Add to std::map of modules
-	std::cout << "Registered Module: " << info.moduleName << "  ID: " << info.moduleID << std::endl;
+	RegisteredModules[info.moduleName] = info; 	// Add to std::map of modules
+	std::cout << "Registered Module: " << info.moduleName << std::endl;
 	return info;
 }
 
@@ -222,7 +223,7 @@ std::vector<NodeInfo> SoundEngine::activeNodes(void)
 std::vector<ModuleInfo> SoundEngine::getRegisteredModules(void)
 {
 	std::vector<ModuleInfo> available_modules;
-	for(std::map<int, ModuleInfo>::iterator it = RegisteredModules.begin(); it != RegisteredModules.end(); ++it) 
+	for(std::map<std::string, ModuleInfo>::iterator it = RegisteredModules.begin(); it != RegisteredModules.end(); ++it) 
 	{
 		available_modules.push_back(it->second);
 	}
@@ -246,9 +247,9 @@ int SoundEngine::is_instantiated(int nodeID)
 	}
 }
 
-ModuleInfo& SoundEngine::getModuleInfo(int moduleID)
+ModuleInfo& SoundEngine::getModuleInfo(std::string moduleName)
 {
-	return RegisteredModules.at(moduleID);
+	return RegisteredModules.at(moduleName);
 }
 
 NodeInfo& SoundEngine::getNodeInfo(int nodeID)

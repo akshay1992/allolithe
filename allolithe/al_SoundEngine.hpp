@@ -33,7 +33,7 @@ int default_module_factory(void)
 struct ModuleInfo
 {
 	std::string moduleName;
-	int moduleID;
+	// int moduleID;
 	bool isASink;
 	ModuleFactoryFunction factory_function;
 };
@@ -44,7 +44,8 @@ struct ModuleInfo
 struct NodeInfo
 {
 	int nodeID;
-	int moduleID;
+	std::string moduleName;
+	// int ModuleID;
 };
 
 /** @brief SoundEngine connects the audiograph to the IO, and handles node management.
@@ -55,7 +56,7 @@ struct NodeInfo
 class SoundEngine
 {
 public:
-	NodeInfo instantiateModule(int moduleID);
+	NodeInfo instantiateModule(std::string moduleName);
 
 	void deleteModuleInstance(int nodeID);
 
@@ -72,13 +73,13 @@ public:
 	bool unpatch_from_inlet(int nodeID, int inlet_index);
 
 	/// @brief Set the sink from which SoundEngine must process the audiograph. Automatically instantiates and returns the nodeID of the sink
-	int setAndInstantiateSink(int sink_module_id) ;
+	int setAndInstantiateSink(std::string moduleName) ;
 
 	/// @brief Returns true if an active sink exists
 	bool sinkIsSet(void) { return (sink_ref != NULL); }
 	
 	///@brief Set the sink from which SoundEngine must process the audiograph. Must already be instantiated
-	void setSink(int sink_node_id, int sink_module_id);
+	void setSink(int sink_node_id, std::string moduleName);
 
 	/// @brief Get the sink from which SoundEngine processes the audiograph.
 	al::SinkModule& getSink(void);
@@ -104,7 +105,7 @@ public:
 	void stop() { getSink().stop(); std::cout << "Stopping Sink " << std::endl; }
 	bool isRunning(void);
 
-	ModuleInfo& getModuleInfo(int moduleID);
+	ModuleInfo& getModuleInfo(std::string moduleName);
 
 	NodeInfo& getNodeInfo( int nodeID);
 
@@ -121,7 +122,7 @@ private:
 	int is_instantiated(int nodeID);
 
 	al::SinkModule* sink_ref = NULL;
-	std::map<int, ModuleInfo> RegisteredModules;
+	std::map<std::string, ModuleInfo> RegisteredModules;
 	// std::vector<NodeInfo> InstantiatedNodes = std::vector<NodeInfo>();
 	std::map<int, NodeInfo> InstantiatedNodes;
 };
