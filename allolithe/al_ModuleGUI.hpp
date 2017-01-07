@@ -100,7 +100,7 @@ class ModuleGUI
 {
 public:
 
-	ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName);
+	ModuleGUI(al::PatcherGUI& gui, al::SoundEngine& se, al::Module& module, std::string& moduleName);
 
 	~ModuleGUI();
 
@@ -116,7 +116,12 @@ public:
 
 	void addParameter(al::Parameter& parameter);
 
+	void setParentPatcherGUI(PatcherGUI& patcherGUI);
+
+
 	static void widgetChangeCallback(const glv::Notification& n);
+
+	void deleteSelf(void);
 	
 	struct WidgetWrapper
 	{
@@ -141,7 +146,7 @@ public:
 	// const int padTop = 10;
 	// const int padBottom = 10;
 
-	al::PatcherGUI* parentPatcherGUI;	//set this at creation time
+	al::PatcherGUI& parentPatcherGUI_ref;	//set this at creation time
 	glv::Notifier unpatch_notifier;
 	ModuleGUIKeyDownEvent moduleGUIKeyDownEvent;
 	unique_ptr<glv::View> top;

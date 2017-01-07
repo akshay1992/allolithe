@@ -72,9 +72,6 @@ public:
 
 	bool unpatch_from_inlet(int nodeID, int inlet_index);
 
-	/// @brief Set the sink from which SoundEngine must process the audiograph. Automatically instantiates and returns the nodeID of the sink
-	int setAndInstantiateSink(std::string moduleName) ;
-
 	/// @brief Returns true if an active sink exists
 	bool sinkIsSet(void) { return (sink_ref != NULL); }
 	

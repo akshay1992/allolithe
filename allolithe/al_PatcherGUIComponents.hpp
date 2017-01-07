@@ -17,22 +17,23 @@ namespace al{
 	
 class Inlets;
 class Outlets;
+class PatcherGUI;
 
 struct PatchInfo
 {
-	PatchInfo(Inlets& inlets_ref, Outlets& outlets_ref) : inlets_ref(inlets_ref), outlets_ref(outlets_ref){}
+	PatchInfo(Inlets* inlets_ref, Outlets* outlets_ref) : inlets_ref(inlets_ref), outlets_ref(outlets_ref){}
 	int source_nodeID;
 	int inlet_index;
-	Inlets& inlets_ref;
+	Inlets* inlets_ref;
 	
 	int destination_nodeID;
 	int outlet_index;
-	Outlets& outlets_ref;
+	Outlets* outlets_ref;
 
-	// void print()
-	// {
-	// 	std::cout << source_nodeID << " " << inlet_index << " -- "<< destination_nodeID << " " << outlet_index  << std::endl;
-	// }
+	void print()
+	{
+		std::cout << "Source:" << source_nodeID << " (" << inlet_index << ") -- Destination:"<< destination_nodeID << " (" << outlet_index  << ")" << std::endl;
+	}
 };
 
 struct InstantiateModuleEvent : public glv::EventHandler
@@ -51,20 +52,28 @@ class PatchChords : glv::View3D
 public:
 	virtual void draw(glv::GLV& g);
 
-	void addPatch(std::shared_ptr<PatchInfo> p);
+	void addPatch( PatchInfo& p);
 
 	void removePatchAtIndex(int p_index);
 
-	std::vector<std::shared_ptr<PatchInfo>> patches;
+	std::vector<PatchInfo> patches;
 };
 
 
 class ModuleList : public glv::Box
 {
 public:
-	InstantiateModuleEvent instantiateModuleEvent;
+	struct MouseUpEvent : public glv::EventHandler
+	{
+		MouseUpEvent(al::PatcherGUI& gui, ModuleList& moduleList);
+		virtual bool onEvent(glv::View &v, glv::GLV &g);
+		al::PatcherGUI& gui;
+		ModuleList& moduleList;
+	};
 
-	ModuleList(al::SoundEngine& se);
+	ModuleList(al::PatcherGUI& gui, al::SoundEngine& se);
+
+	MouseUpEvent mouseUpEvent;
 
 	void refreshLlist(void);
 

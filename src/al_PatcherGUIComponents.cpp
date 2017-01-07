@@ -1,41 +1,8 @@
 #include "allolithe/al_PatcherGUIComponents.hpp"
 #include "allolithe/al_ModuleGUI.hpp"
-
+#include "allolithe/al_PatcherGUI.hpp"
+#include <algorithm>
 namespace al{
-
-InstantiateModuleEvent::InstantiateModuleEvent(al::SoundEngine& se, std::string& selected_module_id, glv::Buttons& b) : 
-	selected_module_id(selected_module_id) ,
-	sound_engine_ref(se),
-	buttons(b)
-{
-
-}
-
-bool InstantiateModuleEvent::onEvent(glv::View &v, glv::GLV &g)
-{
-	int x = g.mouse().x();
-	int y = g.mouse().y();
-	if( ! v.containsPoint(x, y) )
-	{
-		ModuleInfo module = sound_engine_ref.getModuleInfo(selected_module_id);
-
-		NodeInfo info = sound_engine_ref.instantiateModule(module.moduleName);
-
-		if( ! sound_engine_ref.sinkIsSet() && module.isASink )
-			sound_engine_ref.setAndInstantiateSink(module.moduleName);
-
-		al::Module& module_ref = al::Module::getModuleRef(info.nodeID);
-		al::ModuleGUI* gui = new ModuleGUI(sound_engine_ref, module_ref, module.moduleName);
-		glv::View* v = &gui->getView();
-		buttons.parent->parent->add(*v);
-		v->pos(x, y);
-
-		buttons.setValue(0);
-		return false;
-	}
-	buttons.setValue(0);
-	return true;
-}
 
 QuitButton::QuitButton(void) : 
 	glv::Button((glv::Rect(60, 30)))
@@ -57,10 +24,10 @@ bool QuitButton::onEvent(glv::Event::t e, glv::GLV& g)
 	}
 }
 
-ModuleList::ModuleList(al::SoundEngine& se) : 
+ModuleList::ModuleList(al::PatcherGUI& gui, al::SoundEngine& se) : 
 		sound_engine_ref(&se),
 		glv::Box(glv::Direction::S),
-		instantiateModuleEvent(se, selected_module_id, buttons)
+		mouseUpEvent(gui, *this) 
 {
 	name("ModuleList");
 }
@@ -83,7 +50,8 @@ void ModuleList::refreshLlist(void)
 	}
 
 	// Add handler for instantiating modules
-	buttons.addHandler(glv::Event::MouseUp, instantiateModuleEvent);
+	// buttons.addHandler(glv::Event::MouseUp, instantiateModuleEvent);
+	buttons.addHandler(glv::Event::MouseUp, mouseUpEvent);
 	(*this) << buttons;
 }
 
@@ -98,6 +66,29 @@ void ModuleList::onDraw(glv::GLV& g)
 		}
 	}
 	selected_module_id = "";
+}
+
+ModuleList::MouseUpEvent::MouseUpEvent(al::PatcherGUI& gui, al::ModuleList& moduleList) : 
+	moduleList(moduleList), 
+	gui(gui)
+{
+}
+
+bool ModuleList::MouseUpEvent::onEvent(glv::View &v, glv::GLV &g)
+{
+	int x = g.mouse().x();
+	int y = g.mouse().y();
+	if( ! v.containsPoint(x, y) )	// ensures that the user has dragged outside the ModuleList
+	{
+
+		al::ModuleGUI& module = gui.instantiateModule(moduleList.selected_module_id);
+		module.getView().pos(x, y);
+
+		moduleList.buttons.setValue(0);
+		return false;
+	}
+	moduleList.buttons.setValue(0);
+	return true;
 }
 
 RunStopButton::RunStopButton(al::SoundEngine& se) : 
@@ -140,12 +131,13 @@ void PatchChords::draw(glv::GLV& g)
 {
 	glv::GraphicsData& gd = g.graphicsData();
 
-	for( shared_ptr<PatchInfo> p : patches)
+	int i=0;
+	for( PatchInfo& p : patches)
 	{
 		glv::Point2 origin, destination;
 
-		destination = p->inlets_ref.getPatchPoint(p->inlet_index);
-		origin = p->outlets_ref.getPatchPoint(p->outlet_index);
+		destination = p.inlets_ref->getPatchPoint(p.inlet_index);
+		origin = p.outlets_ref->getPatchPoint(p.outlet_index);
 
 		gd.addVertex(origin.x, origin.y);
 		gd.addColor(glv::HSV(0,1,1));
@@ -155,14 +147,16 @@ void PatchChords::draw(glv::GLV& g)
 	}
 }
 
-void PatchChords::addPatch(std::shared_ptr<PatchInfo> p)
+void PatchChords::addPatch(PatchInfo& p)
 {
 	patches.push_back(p);
 }
 
 void PatchChords::removePatchAtIndex(int p_index)
 {
-	patches.erase(patches.begin() + 1);
+    using std::swap;
+    swap(patches[p_index], patches.back());
+    patches.pop_back();
 }
 
 

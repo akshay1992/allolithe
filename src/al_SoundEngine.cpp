@@ -66,13 +66,6 @@ void SoundEngine::onSound(al::AudioIOData& io)
 	getSink().onSound(io);
 }
 
-int SoundEngine::setAndInstantiateSink(std::string moduleName)
-{
-	NodeInfo info = instantiateModule(moduleName);
-	setSink(info.nodeID, info.moduleName);
-	return info.nodeID;
-}
-
 void SoundEngine::setSink(int sink_node_id, std::string moduleName)
 {
 	try

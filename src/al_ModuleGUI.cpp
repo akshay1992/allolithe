@@ -1,5 +1,6 @@
 #include "allolithe/al_ModuleGUI.hpp"
 #include "allolithe/al_PatcherGUI.hpp"
+
 #include <memory>
 namespace al {
 
@@ -24,7 +25,7 @@ bool ModuleGUIKeyDownEvent::onEvent(glv::View &v, glv::GLV &g)
 		// 	notifier.notify(glv::Update::Action, &patch_index); 
 		// }
 
-		delete &moduleGUI_ref;
+		moduleGUI_ref.deleteSelf();
 	}
 }
 
@@ -46,11 +47,13 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 			outlets_ref.moduleGUI_ref.module_ref.getOutlet(outlets_ref.selected_outlet) 
 			);
 
-		std::shared_ptr<PatchInfo> p(new PatchInfo(*Inlets::last_selected_inlets_ref, outlets_ref));
-		p->inlet_index = Inlets::last_selected_inlet_index;
-		p->destination_nodeID = Inlets::last_selected_inlets_ref->moduleGUI_ref.module_ref.getNodeID();
-		p->source_nodeID = outlets_ref.moduleGUI_ref.module_ref.getNodeID();
-		p->outlet_index = outlets_ref.selected_outlet;
+		PatchInfo p(Inlets::last_selected_inlets_ref, &outlets_ref);
+		p.inlet_index = Inlets::last_selected_inlet_index;
+		p.destination_nodeID = Inlets::last_selected_inlets_ref->moduleGUI_ref.module_ref.getNodeID();
+		p.source_nodeID = outlets_ref.moduleGUI_ref.module_ref.getNodeID();
+		p.outlet_index = outlets_ref.selected_outlet;
+
+		// p->print();
 
 		notifier.notify(glv::Update::Action, &p); // Notify the PatcherGUI to draw the patch chord
 
@@ -61,7 +64,8 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 	}
 	else
 	{
-		outlets_ref.buttons->setValue(0, outlets_ref.selected_outlet);
+		if ( outlets_ref.moduleGUI_ref.patch_indices.size() == 0 )
+			outlets_ref.buttons->setValue(0, outlets_ref.selected_outlet);
 	}
 	return false;
 }
@@ -72,12 +76,22 @@ bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 	{
 		Inlets::last_selected_inlet_index = inlets_ref.selected_inlet;
 		Inlets::last_selected_inlets_ref = &inlets_ref;
+
+		// cout << "Inlet: " <<  Inlets::last_selected_inlet_index << endl;
 		MouseUpInletEvent::active = true;
 	}
 	else
 	{
-		return false;
+		Inlets::last_selected_inlets_ref->buttons->setValue(0, Inlets::last_selected_inlet_index);
+
+		Inlets::last_selected_inlets_ref->selected_inlet = -1;
+
+		if( &inlets_ref == Inlets::last_selected_inlets_ref )
+			MouseUpInletEvent::active = true;
+		else
+			MouseUpInletEvent::active = false;	
 	}
+	return false;
 }
 
 
@@ -94,7 +108,6 @@ Outlets::Outlets(al::SoundEngine& se, al::ModuleGUI& moduleGUI, int size) :
 	numOutlets = moduleGUI_ref.module_ref.numOutlets();
 	buttons.reset( new glv::Buttons(glv::Rect(numOutlets*size, size), numOutlets, 1, true, true) );
 	buttons->addHandler(glv::Event::MouseUp, mouseUpOutletEvent);
-
 	buttons->enable(glv::Property::Controllable);
 	buttons->padding(5);
 
@@ -105,7 +118,8 @@ Outlets::Outlets(al::SoundEngine& se, al::ModuleGUI& moduleGUI, int size) :
 /// Gets to abs co-ordinate of the center of a given outlet
 glv::Point2 Outlets::getPatchPoint(int index)
 {
-	float x= size*(index+0.5), y=size/2;
+	float x= size*(index+0.5);
+	float y= size/2;
 	toAbs(x,y);
 	return glv::Point2(x, y);
 }
@@ -145,27 +159,30 @@ Inlets::Inlets(al::ModuleGUI& moduleGUI, int size) :
 
 glv::Point2 Inlets::getPatchPoint(int index)
 {
-	float x= size*(index+0.5), y=size/2;
+	float x= size*(index+0.5); 
+	float y= size/2;
 	toAbs(x,y);
 	return glv::Point2(x, y);
 }
 
 void Inlets::onDraw( glv::GLV& g) 
 {
-	getPatchPoint(3);
-
 	for(int i=0; i<buttons->size(); ++i)
 	{
 		if(buttons->getValue(i) == 1)
 		{
-			selected_inlet = i;
+			{
+				selected_inlet = i;
+
+			}
 			return;
 		}
 	}
 	selected_inlet = -1;
 }
 
-ModuleGUI::ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName) :
+ModuleGUI::ModuleGUI(al::PatcherGUI& gui, al::SoundEngine& se, al::Module& module, std::string& moduleName) :
+	parentPatcherGUI_ref(gui),
 	soundengine_ref(se), 
 	module_ref(module),
 	moduleGUIKeyDownEvent(*this)
@@ -186,29 +203,39 @@ ModuleGUI::ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& modul
 	top->enable(glv::Property::DrawBorder);
 
 	top->addHandler(glv::Event::KeyDown, moduleGUIKeyDownEvent);
-
-	// WAS HERE
-	// unpatch_notifier.attach(parentPatcherGUI::onUnPatch, glv::Update::Action);
-
 }
 
-ModuleGUI::~ModuleGUI()
+void ModuleGUI::deleteSelf(void)
 {
-	cout << "deleting module GUI" << endl;
+	cout << "deleting module GUI..." << endl;
 
 	cout << "unpatching" << endl;
 
 	for( int i : patch_indices)
 	{
-		unpatch_notifier.notify(glv::Update::Action, &i); 
+		parentPatcherGUI_ref.patchChords.removePatchAtIndex(i);
 	}
 
 	cout << "removing" << endl;
+
 	top->remove();
+
+	delete this;
+}
+
+ModuleGUI::~ModuleGUI()
+{
 
 	cout << "deleting underlying module" << endl;
 
 	soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
+
+	cout << "done!" << endl;
+}
+
+void ModuleGUI::setParentPatcherGUI(PatcherGUI& patcherGUI)
+{
+	parentPatcherGUI_ref;
 }
 
 glv::View& ModuleGUI::getView(void) { return *top; }

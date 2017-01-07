@@ -15,9 +15,7 @@ using namespace std;
 
 namespace al{
 
-
-
-
+class ModuleGUI;
 
 /** @brief A UI for patching allolithe Modules
 
@@ -37,10 +35,14 @@ public:
 
 	static void onUnPatch(const glv::Notification &n);
 
+	al::ModuleGUI& instantiateModule(std::string moduleName);
+
 	~PatcherGUI(void);
 
 	al::GLVDetachable* top_view;
 
+	friend class ModuleGUI;
+	
 private:
 	static PatchChords patchChords;
 	al::SoundEngine& sound_engine_ref;
