@@ -41,8 +41,6 @@ public:
 
 	al::GLVDetachable* top_view;
 
-
-
 private:
 	static PatchChords patchChords;
 	al::SoundEngine& sound_engine_ref;

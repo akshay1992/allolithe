@@ -3,8 +3,10 @@
 
 #include "GLV/glv.h"
 #include "GLV/glv_binding.h"
-#include "allolithe/al_ModuleGUI.hpp"
 #include <algorithm>
+#include <memory>
+
+#include "allolithe/al_SoundEngine.hpp"
 
 #include <iostream>
 using namespace std;
@@ -12,6 +14,26 @@ using namespace std;
 /// @brief THis file contains all the GUI components used by al::PatcherGUI
 
 namespace al{
+	
+class Inlets;
+class Outlets;
+
+struct PatchInfo
+{
+	PatchInfo(Inlets& inlets_ref, Outlets& outlets_ref) : inlets_ref(inlets_ref), outlets_ref(outlets_ref){}
+	int source_nodeID;
+	int inlet_index;
+	Inlets& inlets_ref;
+	
+	int destination_nodeID;
+	int outlet_index;
+	Outlets& outlets_ref;
+
+	// void print()
+	// {
+	// 	std::cout << source_nodeID << " " << inlet_index << " -- "<< destination_nodeID << " " << outlet_index  << std::endl;
+	// }
+};
 
 struct InstantiateModuleEvent : public glv::EventHandler
 {
@@ -27,39 +49,13 @@ struct InstantiateModuleEvent : public glv::EventHandler
 class PatchChords : glv::View3D
 {
 public:
-	virtual void draw(glv::GLV& g)
-	{
-		glv::GraphicsData& gd = g.graphicsData();
+	virtual void draw(glv::GLV& g);
 
-		for( PatchInfo p : patches)
-		{
-			glv::Point2 origin, destination;
+	void addPatch(std::shared_ptr<PatchInfo> p);
 
-			destination = p.inlets_ref.getPatchPoint(p.inlet_index);
-			origin = p.outlets_ref.getPatchPoint(p.outlet_index);
+	void removePatchAtIndex(int p_index);
 
-			gd.addVertex(origin.x, origin.y);
-			gd.addColor(glv::HSV(0,1,1));
-			gd.addVertex(destination.x, destination.y);
-			gd.addColor(glv::HSV(0,1,1));
-			glv::draw::paint(glv::draw::Lines, gd);
-		}
-	}
-
-	void addPatch(PatchInfo& p)
-	{
-		patches.push_back(p);
-	}
-
-	void removePatch(PatchInfo p)
-	{
-		patches.erase(std::remove(patches.begin(), patches.end(), p), patches.end());
-
-		// cout << "remove patch" << endl;
-		// patches.push_back(p);
-	}
-
-	std::vector<PatchInfo> patches;
+	std::vector<std::shared_ptr<PatchInfo>> patches;
 };
 
 

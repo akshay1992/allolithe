@@ -12,27 +12,10 @@
 using namespace std;
 namespace al{
 
-
 class Inlets;
 class Outlets;
 class ModuleGUI;
-
-struct PatchInfo
-{
-	PatchInfo(Inlets& inlets_ref, Outlets& outlets_ref) : inlets_ref(inlets_ref), outlets_ref(outlets_ref){}
-	int source_nodeID;
-	int inlet_index;
-	Inlets& inlets_ref;
-	
-	int destination_nodeID;
-	int outlet_index;
-	Outlets& outlets_ref;
-
-	void print()
-	{
-		std::cout << source_nodeID << " " << inlet_index << " -- "<< destination_nodeID << " " << outlet_index  << std::endl;
-	}
-};
+class PatcherGUI;
 
 class ModuleGUIKeyDownEvent : public glv::EventHandler
 {
@@ -117,117 +100,24 @@ class ModuleGUI
 {
 public:
 
-	ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName) :
-		soundengine_ref(se), 
-		module_ref(module),
-		moduleGUIKeyDownEvent(*this)
-	{
-		mBox.reset(new glv::Box(glv::Direction::S) );
-		mBox->pos(glv::Place::TL, 10, 0);
-		
-		addInlets();
-		addName(moduleName);
-		addParameters();
-		addOutlets();
+	ModuleGUI(al::SoundEngine& se, al::Module& module, std::string& moduleName);
 
-		top.reset(new glv::View(glv::Rect(0, 0, mBox->width() + 2*pad, mBox->height())) );
-		*top << mBox.get();
+	~ModuleGUI();
 
-		top->addHandler(glv::Event::MouseDrag, glv::Behavior::mouseMove);
-		top->enable(glv::Property::Controllable);
-		top->enable(glv::Property::DrawBorder);
+	glv::View& getView(void);
 
-		top->addHandler(glv::Event::KeyDown, moduleGUIKeyDownEvent);
-	}
+	void addInlets(void);
 
-	~ModuleGUI()
-	{
-		cout << "deleting module GUI" << endl;
-		
-		for( PatchInfo& p: patches)
-		{
+	void addOutlets(void);
 
-		}
+	void addName(std::string& moduleName, bool show_node_id=false);
 
-		top->remove();
-		soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
-	}
+	void addParameters(void);
 
-	glv::View& getView(void) { return *top; }
+	void addParameter(al::Parameter& parameter);
 
-	void addInlets(void)
-	{
-		inlets = new Inlets(*this, 15);
-		inlets->pos(glv::Place::TL, 0, 0);
-		(*mBox) << inlets;
-	}
-
-	void addOutlets(void)
-	{	
-		outlets = new Outlets(soundengine_ref, *this, 15);
-		outlets->pos(glv::Place::TL, 0, 0);
-		(*mBox) << outlets;
-	}
-
-	void addName(std::string& moduleName, bool show_node_id=false)
-	{
-		if(show_node_id)
-			name_label.reset( new glv::Label(moduleName+" NodeID: " +std::to_string(module_ref.getNodeID())) );
-		else
-			name_label.reset( new glv::Label(moduleName) );
-		name_label->pos(10, 0);
-		(*mBox) << name_label.get();
-	}
-
-
-	void addParameters(void)
-	{
-		for( int i=0; i < module_ref.numParams(); ++i)
-		{
-			addParameter(module_ref.parameter(i));
-		}
-	}
-
-	void addPatch(PatchInfo& p)
-	{
-		patches.push_back(p);
-	}
-
-
-	void addParameter(al::Parameter& parameter)
-	{
-		int numInt = 2 + ceil(log10(fmax(fabs(parameter.max()), fabs(parameter.min()))));
-		glv::NumberDialer *number  = new glv::NumberDialer(numInt, 7 - numInt,
-		                                                   parameter.max(),
-		                                                   parameter.min());
-		number->setValue(parameter.get());
-		WidgetWrapper *wrapper = new WidgetWrapper;
-		wrapper->parameter = &parameter;
-		wrapper->lock = &mParameterGUILock;
-		wrapper->widget = static_cast<glv::Widget *>(number);
-		mWrappers.push_back(wrapper);
-		// number->attach(ParameterGUI::widgetChangeCallback, glv::Update::Value, wrapper);
-
-		glv::Box *box = new glv::Box;
-		*box << number << new glv::Label(parameter.getName());
-		box->fit();
-		(*mBox) << box;
-		mBox->fit();
-		// mBox.fit();
-		// parameter.registerChangeCallback(ParameterGUI::valueChangedCallback, wrapper);
-
-		// return *this;
-	}
-
-	static void widgetChangeCallback(const glv::Notification& n) {
-		glv::Widget &sender = *n.sender<glv::Widget>();
-		WidgetWrapper &receiver = *n.receiver<WidgetWrapper>();
-		receiver.lock->lock();
-		double value = sender.getValue<double>();
-		receiver.lock->unlock();
-		receiver.parameter->setNoCalls(value, &sender);
-	}
-
+	static void widgetChangeCallback(const glv::Notification& n);
+	
 	struct WidgetWrapper
 	{
 		ParameterWrapper<float> *parameter;
@@ -240,7 +130,8 @@ public:
 	friend class Inlets;
 
 public:
-	std::vector<PatchInfo> patches;
+	// Indexes to the relevant patch chords in patcher GUI.
+	std::vector<int> patch_indices;	
 	al::Module& module_ref;
 	al::SoundEngine& soundengine_ref;
 	Inlets* inlets;
@@ -250,6 +141,8 @@ public:
 	// const int padTop = 10;
 	// const int padBottom = 10;
 
+	al::PatcherGUI* parentPatcherGUI;	//set this at creation time
+	glv::Notifier unpatch_notifier;
 	ModuleGUIKeyDownEvent moduleGUIKeyDownEvent;
 	unique_ptr<glv::View> top;
 	unique_ptr<glv::Box> mBox;

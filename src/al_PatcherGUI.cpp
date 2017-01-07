@@ -1,7 +1,10 @@
 #include "allolithe/al_PatcherGUI.hpp"
 
+#include <memory>
 #include <iostream>
 using namespace std;
+
+#include "allolithe/al_ModuleGUI.hpp"
 
 namespace al{
 
@@ -21,14 +24,21 @@ PatcherGUI::PatcherGUI(al::SoundEngine& sound_engine) :
 
 void PatcherGUI::onPatch(const glv::Notification &n)
 {
-	const PatchInfo& p = *n.data<PatchInfo>();
+	const std::shared_ptr<PatchInfo> p = *n.data<std::shared_ptr<PatchInfo>>();
 	patchChords.addPatch(p);
+
+	int index = patchChords.patches.size() - 1;
+
+	p->inlets_ref.moduleGUI_ref.patch_indices.push_back( index );
+	p->outlets_ref.moduleGUI_ref.patch_indices.push_back( index );
 }
 
 void PatcherGUI::onUnPatch(const glv::Notification &n)
 {
-	const PatchInfo& p = *n.data<PatchInfo>();
-	patchChords.removePatch(p);
+	const int p_index = *n.data<int>();
+
+	cout << "Here: " << p_index << endl;
+	// patchChords.removePatchAtIndex(p_index);
 }
 
 void PatcherGUI::openWindow(void)
