@@ -131,6 +131,20 @@ void PatchChords::draw(glv::GLV& g)
 {
 	glv::GraphicsData& gd = g.graphicsData();
 
+	if(delete_queue.size() !=0 )
+	{
+		while(delete_queue.size() != 0 )
+		{
+			int i = delete_queue.back();
+		    using std::swap;
+		    swap(patches[i], patches.back());
+		    PatchInfo& p = patches.back();
+		    patches.pop_back();
+
+		    delete_queue.pop_back();
+		}
+	}
+
 	int i=0;
 	for( PatchInfo& p : patches)
 	{
@@ -154,9 +168,11 @@ void PatchChords::addPatch(PatchInfo& p)
 
 void PatchChords::removePatchAtIndex(int p_index)
 {
-    using std::swap;
-    swap(patches[p_index], patches.back());
-    patches.pop_back();
+	delete_queue.push_back(p_index);
+    // using std::swap;
+    // swap(patches[p_index], patches.back());
+    // PatchInfo& p = patches.back();
+    // patches.pop_back();
 }
 
 

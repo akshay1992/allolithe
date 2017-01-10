@@ -41,6 +41,10 @@ public:
 	~PatcherGUI(void);
 
 	friend class ModuleGUI;
+
+	al::SoundEngine& soundEngine(void){
+		return sound_engine_ref;
+	}
 	
 private:
 	static PatchChords patchChords;

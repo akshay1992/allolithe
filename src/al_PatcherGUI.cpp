@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <iostream>
+#include <vector>
+#include <algorithm>
 using namespace std;
 
 #include "allolithe/al_ModuleGUI.hpp"
@@ -33,15 +35,35 @@ void PatcherGUI::onPatch(const glv::Notification &n)
 
 	p_copy.print();
 
-	p_copy.inlets_ref->moduleGUI_ref.patch_indices.push_back( index );
-	p_copy.outlets_ref->moduleGUI_ref.patch_indices.push_back( index );
+	// Add patch to inlets and outlets
+	p_copy.outlets_ref->patch_indices.at(p_copy.outlet_index).push_back( index );
+	p_copy.inlets_ref->patch_indices[p_copy.inlet_index] = index;
 }
 
 void PatcherGUI::onUnPatch(const glv::Notification &n)
 {
 	const int p_index = *n.data<int>();
+	PatchInfo& p = patchChords.patches[p_index];
 
-	cout << "Here: " << p_index << endl;
+	// Remove patch from inlet
+	p.inlets_ref->patch_indices[p.inlet_index] = -1;;
+	p.inlets_ref->updateState(p.inlet_index);
+
+	// Remove patch from outlet
+	std::vector<int>& patches_at_outlet = p.outlets_ref->patch_indices.at(p.outlet_index);
+	for( int i=0; i< patches_at_outlet.size(); ++i)
+	{
+		if( patches_at_outlet[i] == p_index)
+		{
+		    swap(patches_at_outlet[i], patches_at_outlet.back());
+		    patches_at_outlet.pop_back();
+		}
+	}
+	// patches_at_outlet.erase(std::remove(patches_at_outlet.begin(), patches_at_outlet.end(), p_index), patches_at_outlet.end());
+	cout <<patches_at_outlet.size() << endl;
+    p.outlets_ref->updateState(p.outlet_index);
+
+    // Remove PatchChord from drawing list
 	patchChords.removePatchAtIndex(p_index);
 }
 

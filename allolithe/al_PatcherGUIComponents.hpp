@@ -57,6 +57,7 @@ public:
 	void removePatchAtIndex(int p_index);
 
 	std::vector<PatchInfo> patches;
+	std::vector<int> delete_queue;
 };
 
 

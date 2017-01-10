@@ -8,6 +8,7 @@
 #include "allolithe/al_SoundEngine.hpp"
 
 #include <memory>
+#include <vector>
 #include <iostream>
 using namespace std;
 namespace al{
@@ -36,7 +37,6 @@ public:
 
 	virtual bool onEvent(glv::View &v, glv::GLV &g);
 
-	glv::Notifier notifier;
 	Outlets& outlets_ref;
 };
 
@@ -60,15 +60,16 @@ public:
 
 	/// Gets to abs co-ordinate of the center of a given outlet
 	glv::Point2 getPatchPoint(int index);
-	
-	virtual void onDraw( glv::GLV& g) override;
 
+	void updateState(int outletIndex);
+
+	void dropAllPatchesAtOutlet(int outletIndex);
+	
 	int numOutlets;
 	int size;
-	// al::Module& module_ref;
+	std::map<int, std::vector<int>> patch_indices;	// Support for fanned connections
 	al::ModuleGUI& moduleGUI_ref;
 	al::SoundEngine& soundengine_ref;
-	int selected_outlet = -1;
 	std::unique_ptr<glv::Buttons> buttons;
 	MouseUpOutletEvent mouseUpOutletEvent;
 };
@@ -81,14 +82,15 @@ public:
 	/// Gets to abs co-ordinate of the center of a given inlet
 	glv::Point2 getPatchPoint(int index);
 
-	virtual void onDraw( glv::GLV& g) override;
+	void updateState(int inletIndex);
+
+	void dropAllPatches(int inletIndex);
 
 	int numInlets;
 	int size;
 	
-	// al::Module& module;
+	std::vector<int> patch_indices;
 	al::ModuleGUI& moduleGUI_ref;
-	int selected_inlet = -1;
 	static int last_selected_inlet_index;
 	static Inlets* last_selected_inlets_ref;
 	unique_ptr<glv::Buttons> buttons;
@@ -137,7 +139,6 @@ public:
 
 public:
 	// Indexes to the relevant patch chords in patcher GUI.
-	std::vector<int> patch_indices;	
 	al::Module& module_ref;
 	al::SoundEngine& soundengine_ref;
 	Inlets* inlets;
@@ -149,6 +150,7 @@ public:
 
 	al::PatcherGUI& parentPatcherGUI_ref;	//set this at creation time
 	glv::Notifier unpatch_notifier;
+	glv::Notifier patch_notifier;
 	ModuleGUIKeyDownEvent moduleGUIKeyDownEvent;
 	unique_ptr<glv::View> top;
 	unique_ptr<glv::Box> mBox;
