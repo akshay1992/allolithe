@@ -20,7 +20,7 @@ bool ModuleGUIKeyDownEvent::onEvent(glv::View &v, glv::GLV &g)
 	{
 		try
 		{
-			if( ! moduleGUI_ref.parentPatcherGUI_ref.soundEngine().getSink().isRunning() )
+			// if( ! moduleGUI_ref.parentPatcherGUI_ref.soundEngine().getSink().isRunning() )
 				moduleGUI_ref.deleteSelf();
 		}
 		catch(al::SinkNotSetException)
@@ -95,11 +95,9 @@ bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 			{
 				inlets_ref.buttons->setValue(0, Inlets::last_selected_inlet_index);
 				Inlets::last_selected_inlet_index = index;
-				cout << "same inlets different index" << endl;
 			}
 			else
 			{
-				cout << "same inlets same index" << endl;
 				active = false;
 				inlets_ref.buttons->setValue(0, index);
 				inlets_ref.buttons->setValue(0, Inlets::last_selected_inlet_index);
@@ -114,7 +112,6 @@ bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 		}
 		else
 		{
-			cout << "different inlets" << endl;
 			Inlets::last_selected_inlets_ref->buttons->setValue(0, Inlets::last_selected_inlet_index);
 
 			Inlets::last_selected_inlet_index = index;
@@ -204,7 +201,7 @@ Inlets::Inlets(al::ModuleGUI& moduleGUI, int size) :
 	patch_indices.reserve(numInlets);
 	for( int i=0; i< numInlets; ++i)
 	{
-		patch_indices[i] = -1;
+		patch_indices.push_back(-1);
 	}
 }
 
@@ -232,9 +229,12 @@ void Inlets::dropAllPatches(int inletIndex)
 {
 	for(int inlet_index=0; inlet_index<numInlets; ++inlet_index)
 	{
-		moduleGUI_ref.module_ref.getInlet(inlet_index).disconnect();	
+		if (moduleGUI_ref.module_ref.getInlet(inlet_index).isConnected() )
+		{
+			moduleGUI_ref.module_ref.getInlet(inlet_index).disconnect();	
+			moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &patch_indices[inlet_index]);
+		}
 		buttons->setValue(0, inlet_index);
-		moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &patch_indices[inlet_index]);
 	}
 }
 
@@ -266,9 +266,9 @@ ModuleGUI::ModuleGUI(al::PatcherGUI& gui, al::SoundEngine& se, al::Module& modul
 
 void ModuleGUI::deleteSelf(void)
 {
-	cout << "deleting module GUI..." << endl;
+	// cout << "deleting module GUI..." << endl;
 
-	cout << "NEED TO unpatching in GUI..." << endl;
+	cout << "unpatching in GUI..." << endl;
 
 	for( int i=0; i< outlets->numOutlets; ++i)
 	{
@@ -283,10 +283,10 @@ void ModuleGUI::deleteSelf(void)
 	cout << "removing from GLV view..." << endl;
 
 	soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
-	
+
 	top->remove();
 
-	// delete this;
+	delete this;
 }
 
 ModuleGUI::~ModuleGUI()

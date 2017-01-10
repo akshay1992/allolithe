@@ -50,7 +50,6 @@ void ModuleList::refreshLlist(void)
 	}
 
 	// Add handler for instantiating modules
-	// buttons.addHandler(glv::Event::MouseUp, instantiateModuleEvent);
 	buttons.addHandler(glv::Event::MouseUp, mouseUpEvent);
 	(*this) << buttons;
 }
@@ -80,7 +79,6 @@ bool ModuleList::MouseUpEvent::onEvent(glv::View &v, glv::GLV &g)
 	int y = g.mouse().y();
 	if( ! v.containsPoint(x, y) )	// ensures that the user has dragged outside the ModuleList
 	{
-
 		al::ModuleGUI& module = gui.instantiateModule(moduleList.selected_module_id);
 		module.getView().pos(x, y);
 

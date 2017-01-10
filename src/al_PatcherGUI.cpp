@@ -59,8 +59,6 @@ void PatcherGUI::onUnPatch(const glv::Notification &n)
 		    patches_at_outlet.pop_back();
 		}
 	}
-	// patches_at_outlet.erase(std::remove(patches_at_outlet.begin(), patches_at_outlet.end(), p_index), patches_at_outlet.end());
-	cout <<patches_at_outlet.size() << endl;
     p.outlets_ref->updateState(p.outlet_index);
 
     // Remove PatchChord from drawing list
