@@ -45,7 +45,7 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 
 	try
 	{
-		if( getSink().getNodeID() == nodeID)
+		if( getSink().getNodeID() == nodeID && getSink().isRunning())
 		{
 			throw CannotDeleteActiveSinkException();
 		}			

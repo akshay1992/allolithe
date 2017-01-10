@@ -39,9 +39,6 @@ bool MouseUpOutletEvent::onEvent(glv::View &v, glv::GLV &g)
 {	
 	if ( MouseUpInletEvent::active )
 	{
-		// TODO: move this to a patching callback in PatcherGUI 
-		// (so that drawing can happen simultaneously)
-
 		lithe::Patcher::connect(
 			Inlets::last_selected_inlets_ref->moduleGUI_ref.module_ref.getInlet(Inlets::last_selected_inlet_index), 
 			outlets_ref.moduleGUI_ref.module_ref.getOutlet(outlets_ref.selected_outlet) 
@@ -285,7 +282,7 @@ void ModuleGUI::addParameter(al::Parameter& parameter)
 	wrapper->lock = &mParameterGUILock;
 	wrapper->widget = static_cast<glv::Widget *>(number);
 	mWrappers.push_back(wrapper);
-	// number->attach(ParameterGUI::widgetChangeCallback, glv::Update::Value, wrapper);
+	number->attach(al::ModuleGUI::widgetChangeCallback, glv::Update::Value, wrapper);
 
 	glv::Box *box = new glv::Box;
 	*box << number << new glv::Label(parameter.getName());
@@ -293,7 +290,7 @@ void ModuleGUI::addParameter(al::Parameter& parameter)
 	(*mBox) << box;
 	mBox->fit();
 	// mBox.fit();
-	// parameter.registerChangeCallback(ParameterGUI::valueChangedCallback, wrapper);
+	parameter.registerChangeCallback(al::ModuleGUI::valueChangeCallback, wrapper);
 
 	// return *this;
 }
@@ -305,6 +302,17 @@ void ModuleGUI::widgetChangeCallback(const glv::Notification& n) {
 	double value = sender.getValue<double>();
 	receiver.lock->unlock();
 	receiver.parameter->setNoCalls(value, &sender);
+}
+
+void ModuleGUI::valueChangeCallback(float value, void *sender, void *wrapper, void *blockThis) {
+		WidgetWrapper *w = static_cast<WidgetWrapper *>(wrapper);
+		if (wrapper != blockThis) {
+			w->lock->lock(); // Is the setting of the value from the mouse also protected? Do we need to protect that?
+			glv::Data &d = w->widget->data();
+			d.assign<double>(value); // We need to assign this way to avoid triggering callbacks.
+			w->lock->unlock();
+		}
+
 }
 
 }; //namespace al

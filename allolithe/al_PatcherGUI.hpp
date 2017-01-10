@@ -4,6 +4,7 @@
 #include "GLV/glv.h"
 #include "GLV/glv_binding.h"
 
+#include "alloGLV/al_ControlGLV.hpp"
 #include "allolithe/al_allolithe.hpp"
 #include "allolithe/al_PatcherGUIComponents.hpp"
 
@@ -21,7 +22,7 @@ class ModuleGUI;
 
 	This UI runs a SoundEngine in it's backend and is written using GLV. 
 */
-class PatcherGUI : public glv::GLV
+class PatcherGUI : public al::GLVDetachable
 {
 public:
 	PatcherGUI(al::SoundEngine& sound_engine = al::DefaultSoundEngine());
@@ -38,8 +39,6 @@ public:
 	al::ModuleGUI& instantiateModule(std::string moduleName);
 
 	~PatcherGUI(void);
-
-	al::GLVDetachable* top_view;
 
 	friend class ModuleGUI;
 	
