@@ -125,6 +125,7 @@ bool RunStopButton::onEvent(glv::Event::t e, glv::GLV& g)
 	}
 }
 
+
 void PatchChords::draw(glv::GLV& g)
 {
 	glv::GraphicsData& gd = g.graphicsData();
@@ -167,6 +168,7 @@ void PatchChords::addPatch(PatchInfo& p)
 void PatchChords::removePatchAtIndex(int p_index)
 {
 	delete_queue.push_back(p_index);
+
     // using std::swap;
     // swap(patches[p_index], patches.back());
     // PatchInfo& p = patches.back();

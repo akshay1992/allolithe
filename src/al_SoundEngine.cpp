@@ -56,13 +56,34 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 	}
 
 	std::cout << "Deleting module: " << getNodeInfo(nodeID).moduleName << " NodeID: " <<  nodeID << std::endl;
-	delete &al::Module::getModuleRef(nodeID);
-	InstantiatedNodes.erase(nodeID);
+	delete_queue.push_back(nodeID);
 	return;
 }
 
 void SoundEngine::onSound(al::AudioIOData& io)
 {
+	bool pre_tasks_exist = false;
+
+	while ( unpatch_queue.size() != 0 )
+	{
+		SoundEngine::PatchInfo p = unpatch_queue.back();
+		unpatch(p.destination, p.inlet_index, p.source, p.outlet_index);
+		unpatch_queue.pop_back();
+		pre_tasks_exist=true;
+	}
+
+	while(delete_queue.size() != 0)
+	{
+		int nodeID = delete_queue.back();
+		delete &al::Module::getModuleRef(nodeID);
+		InstantiatedNodes.erase(nodeID);
+		delete_queue.pop_back();
+		pre_tasks_exist=true;
+	}
+
+	if( pre_tasks_exist )
+		getSink().re_sort();	
+
 	getSink().onSound(io);
 }
 
@@ -148,60 +169,53 @@ void SoundEngine::patch(NodeInfo& destination_node, int inlet_index, NodeInfo& s
 		throw PatchingException(PatchingExceptionType::LITHE_ERROR_PATCHING, e);
 	}
 }
+void SoundEngine::scheduleUnpatch(int destination_node_id, int inlet_index, int source_node_id, int outlet_index)
+{
+	SoundEngine::PatchInfo p;
+	p.source = getNodeInfo(source_node_id);
+	p.destination = getNodeInfo(destination_node_id);
+	p.inlet_index = inlet_index;
+	p.outlet_index = outlet_index;
+	unpatch_queue.push_back( p );
+}
 
 void SoundEngine::unpatch(NodeInfo& destination_node, int inlet_index, NodeInfo& source_node, int outlet_index)
 {
-	bool sink_is_running;
 	try
 	{
-		sink_is_running = getSink().isRunning();
+		lithe::Patcher::disconnect(
+			al::Module::getModuleRef(destination_node.nodeID).getInlet(inlet_index), 
+			al::Module::getModuleRef(source_node.nodeID).getOutlet(outlet_index));
 	}
-	catch(SinkNotSetException)
+	catch(std::runtime_error e)
 	{
-		sink_is_running = false; // Sink isn't running (since it isn't set)
+		throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
+	}
+	catch(std::range_error e)
+	{
+		throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
 	}
 
-	if( sink_is_running )
-	{
-		throw PatchingException(PatchingExceptionType::SINK_IS_RUNNING);
-	}
-	else
-	{
-		try
-		{
-			lithe::Patcher::disconnect(
-				al::Module::getModuleRef(destination_node.nodeID).getInlet(inlet_index), 
-				al::Module::getModuleRef(source_node.nodeID).getOutlet(outlet_index));
-		}
-		catch(std::runtime_error e)
-		{
-			throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
-		}
-		catch(std::range_error e)
-		{
-			throw PatchingException(PatchingExceptionType::LITHE_ERROR_UNPATCHING, e);
-		}
-	}
 }
 
-bool SoundEngine::unpatch_from_inlet(int nodeID, int inlet_index)
-{
-	if(getSink().isRunning() )
-	{
-		throw std::runtime_error("Cannot connect patch when sink is running");
-	}
-	else
-	{
-		try
-		{
-			al::Module::getModuleRef(nodeID).getInlet(inlet_index).disconnect();
-		}
-		catch (...)
-		{
-			return false;
-		}
-	}
-}
+// bool SoundEngine::unpatch_from_inlet(int nodeID, int inlet_index)
+// {
+// 	if(getSink().isRunning() )
+// 	{
+// 		throw std::runtime_error("Cannot connect patch when sink is running");
+// 	}
+// 	else
+// 	{
+// 		try
+// 		{
+// 			al::Module::getModuleRef(nodeID).getInlet(inlet_index).disconnect();
+// 		}
+// 		catch (...)
+// 		{
+// 			return false;
+// 		}
+// 	}
+// }
 
 std::vector<NodeInfo> SoundEngine::activeNodes(void)
 {

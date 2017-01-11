@@ -52,8 +52,8 @@ private:
 	RunStopButton run_button;
 	QuitButton quit_button;
 	ModuleList module_selector;
-
 	unique_ptr<glv::Window> win;
+
 };
 
 }; // namespace al

@@ -36,6 +36,14 @@ struct PatchInfo
 	}
 };
 
+struct UnpatchMessage
+{
+	PatcherGUI* patcherGUI;
+	int patch_index;
+	bool alsoMakeSoundEngineCall = true;
+};
+
+
 struct InstantiateModuleEvent : public glv::EventHandler
 {
 	InstantiateModuleEvent(al::SoundEngine& se, std::string& selected_module_id, glv::Buttons& b);

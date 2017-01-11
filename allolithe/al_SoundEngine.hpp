@@ -68,6 +68,8 @@ public:
 
 	void patch(NodeInfo& destination_node, int inlet_index, NodeInfo& source_node, int outlet_index);
 
+	void scheduleUnpatch(int destination_node_id, int inlet_index, int source_node_id, int outlet_index);
+
 	void unpatch(NodeInfo& destination_node, int inlet_index, NodeInfo& source_node, int outlet_index);
 
 	bool unpatch_from_inlet(int nodeID, int inlet_index);
@@ -115,22 +117,32 @@ public:
 	/// @brief Gets a vector of all registered modules
 	std::vector<ModuleInfo> getRegisteredModules(void);
 
+	struct PatchInfo
+	{
+		NodeInfo source;
+		int outlet_index;
+		NodeInfo destination;
+		int inlet_index;
+	};
+
 private:
 	int is_instantiated(int nodeID);
 
+	std::vector<int> delete_queue;
+	std::vector<SoundEngine::PatchInfo> unpatch_queue;
 	al::SinkModule* sink_ref = NULL;
 	std::map<std::string, ModuleInfo> RegisteredModules;
 	// std::vector<NodeInfo> InstantiatedNodes = std::vector<NodeInfo>();
 	std::map<int, NodeInfo> InstantiatedNodes;
 };
 
-/// @brief Returns the default instance of the SoundEngine (instantited as a static within this function)
+/// @brief Returns the default instance of the SoundEngine (instantiated as a static within this function)
 al::SoundEngine& DefaultSoundEngine(void);
 
-/// @brief Sorthand for registering a Module to the default sound engine in DefaultSoundEngine()
+/// @brief Shorthand for registering a Module to the default sound engine in DefaultSoundEngine()
 ModuleInfo RegisterModule(std::string module_name, ModuleFactoryFunction module_factory_function, bool is_a_sink_module);
 
-/// @brief Sorthand for registering a Module to the default sound engine in DefaultSoundEngine()
+/// @brief Shorthand for registering a Module to the default sound engine in DefaultSoundEngine()
 template<typename T>
 ModuleInfo RegisterModule(std::string module_name, bool is_a_sink_module)
 {

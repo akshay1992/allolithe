@@ -32,6 +32,9 @@ public:
 	void stop(void) { mRunning = false; } 
 	bool isRunning(void) { return mRunning; }
 
+	/// @brief re-sorts the audio graph using the sorter
+	virtual void re_sort(void);
+
 	/** @brief This is where the processing code goes. 
 		
 		Note: Remember to call lithe::Node::resetAll_ProcessState 

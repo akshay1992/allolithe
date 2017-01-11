@@ -81,9 +81,14 @@ bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 			// If it's patched to something, unpatch
 			if (inlets_ref.moduleGUI_ref.module_ref.getInlet(index).isConnected() ) 
 			{
-				inlets_ref.moduleGUI_ref.module_ref.getInlet(index).disconnect();
+				// inlets_ref.moduleGUI_ref.module_ref.getInlet(index).disconnect();
 				inlets_ref.buttons->setValue(0, index);
-				inlets_ref.moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &inlets_ref.patch_indices[index]);
+
+				UnpatchMessage m;
+				m.patcherGUI = &inlets_ref.moduleGUI_ref.parentPatcherGUI_ref;
+				m.patch_index = inlets_ref.patch_indices[index];
+
+				inlets_ref.moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &m);
 			}
 		}
 	}
@@ -105,8 +110,12 @@ bool MouseUpInletEvent::onEvent(glv::View &v, glv::GLV &g)
 				// If it's patched to something, unpatch
 				if (inlets_ref.moduleGUI_ref.module_ref.getInlet(index).isConnected() ) 
 				{
-					inlets_ref.moduleGUI_ref.module_ref.getInlet(index).disconnect();
-					inlets_ref.moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &inlets_ref.patch_indices[index]);
+					UnpatchMessage m;
+					m.patcherGUI = &inlets_ref.moduleGUI_ref.parentPatcherGUI_ref;
+					m.patch_index = inlets_ref.patch_indices[index];
+
+					// inlets_ref.moduleGUI_ref.module_ref.getInlet(index).disconnect();
+					inlets_ref.moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &m);
 				}
 			}
 		}
@@ -170,12 +179,12 @@ void Outlets::updateState(int outletIndex)
 
 void Outlets::dropAllPatchesAtOutlet(int outletIndex)
 {
-	for(int outlet_index=0; outlet_index<numOutlets; ++outlet_index)
+	for( int i : patch_indices.at(outletIndex) )
 	{
-		for( int i : patch_indices.at(outlet_index) )
-		{
-			moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &i);
-		}
+		UnpatchMessage m;
+		m.patcherGUI = &moduleGUI_ref.parentPatcherGUI_ref;
+		m.patch_index = i;
+		moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &m);
 	}
 }
 
@@ -225,17 +234,17 @@ void Inlets::updateState(int inletIndex)
 	}
 }
 
-void Inlets::dropAllPatches(int inletIndex)
+void Inlets::dropPatch(int inletIndex)
 {
-	for(int inlet_index=0; inlet_index<numInlets; ++inlet_index)
+	if (moduleGUI_ref.module_ref.getInlet(inletIndex).isConnected() )
 	{
-		if (moduleGUI_ref.module_ref.getInlet(inlet_index).isConnected() )
-		{
-			moduleGUI_ref.module_ref.getInlet(inlet_index).disconnect();	
-			moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &patch_indices[inlet_index]);
-		}
-		buttons->setValue(0, inlet_index);
+		UnpatchMessage m;
+		m.patcherGUI = &moduleGUI_ref.parentPatcherGUI_ref;
+		m.patch_index = patch_indices[inletIndex];
+		// moduleGUI_ref.module_ref.getInlet(inlet_index).disconnect();	
+		moduleGUI_ref.unpatch_notifier.notify(glv::Update::Action, &m);
 	}
+	buttons->setValue(0, inletIndex);
 }
 
 ModuleGUI::ModuleGUI(al::PatcherGUI& gui, al::SoundEngine& se, al::Module& module, std::string& moduleName) :
@@ -266,10 +275,6 @@ ModuleGUI::ModuleGUI(al::PatcherGUI& gui, al::SoundEngine& se, al::Module& modul
 
 void ModuleGUI::deleteSelf(void)
 {
-	// cout << "deleting module GUI..." << endl;
-
-	cout << "unpatching in GUI..." << endl;
-
 	for( int i=0; i< outlets->numOutlets; ++i)
 	{
 		outlets->dropAllPatchesAtOutlet(i);
@@ -277,25 +282,18 @@ void ModuleGUI::deleteSelf(void)
 
 	for( int i=0; i< inlets->numInlets; ++i)
 	{
-		inlets->dropAllPatches(i);
+		inlets->dropPatch(i);
 	}
-
-	cout << "removing from GLV view..." << endl;
 
 	soundengine_ref.deleteModuleInstance(module_ref.getNodeID());
 
 	top->remove();
 
-	delete this;
+	// delete this;
 }
 
 ModuleGUI::~ModuleGUI()
 {
-
-	cout << "deleting underlying module" << endl;
-
-
-	cout << "done!" << endl;
 }
 
 void ModuleGUI::setParentPatcherGUI(PatcherGUI& patcherGUI)

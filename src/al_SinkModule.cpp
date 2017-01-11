@@ -13,8 +13,13 @@ void SinkModule::run()
 	if(isRunning()) 
 		return;
 
-	lithe::BFS::sort(*this); // Sort the audio graph and enable 1-sample delays
+	re_sort();
 	mRunning = true; 
+}
+
+void SinkModule::re_sort(void)
+{
+	lithe::BFS::sort(*this); // Sort the audio graph and enable 1-sample delays
 }
 
 // void SinkModule::Process(void)

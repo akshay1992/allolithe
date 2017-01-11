@@ -42,18 +42,18 @@ void PatcherGUI::onPatch(const glv::Notification &n)
 
 void PatcherGUI::onUnPatch(const glv::Notification &n)
 {
-	const int p_index = *n.data<int>();
-	PatchInfo& p = patchChords.patches[p_index];
+	const UnpatchMessage m = *n.data<UnpatchMessage>();
+	PatchInfo& p = patchChords.patches[m.patch_index];
 
 	// Remove patch from inlet
-	p.inlets_ref->patch_indices[p.inlet_index] = -1;;
+	p.inlets_ref->patch_indices[p.inlet_index] = -1;
 	p.inlets_ref->updateState(p.inlet_index);
 
 	// Remove patch from outlet
 	std::vector<int>& patches_at_outlet = p.outlets_ref->patch_indices.at(p.outlet_index);
 	for( int i=0; i< patches_at_outlet.size(); ++i)
 	{
-		if( patches_at_outlet[i] == p_index)
+		if( patches_at_outlet[i] == m.patch_index)
 		{
 		    swap(patches_at_outlet[i], patches_at_outlet.back());
 		    patches_at_outlet.pop_back();
@@ -61,8 +61,16 @@ void PatcherGUI::onUnPatch(const glv::Notification &n)
 	}
     p.outlets_ref->updateState(p.outlet_index);
 
+    /// Tell the sound engine to unpatch
+    int destinationID = p.inlets_ref->moduleGUI_ref.module_ref.getNodeID();
+    int inlet_index = p.inlet_index;
+    int sourceID = p.outlets_ref->moduleGUI_ref.module_ref.getNodeID();
+    int outlet_index = p.outlet_index;
+    // add_to_unpatch(nodeID, index);
+    m.patcherGUI->sound_engine_ref.scheduleUnpatch(destinationID, inlet_index, sourceID, outlet_index);
+
     // Remove PatchChord from drawing list
-	patchChords.removePatchAtIndex(p_index);
+	patchChords.removePatchAtIndex(m.patch_index);
 }
 
 al::ModuleGUI& PatcherGUI::instantiateModule(std::string moduleName)

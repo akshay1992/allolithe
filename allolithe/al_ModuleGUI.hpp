@@ -84,7 +84,7 @@ public:
 
 	void updateState(int inletIndex);
 
-	void dropAllPatches(int inletIndex);
+	void dropPatch(int inletIndex);
 
 	int numInlets;
 	int size;
