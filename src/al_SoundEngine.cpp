@@ -56,6 +56,7 @@ void SoundEngine::deleteModuleInstance(int nodeID)
 	}
 
 	std::cout << "Deleting module: " << getNodeInfo(nodeID).moduleName << " NodeID: " <<  nodeID << std::endl;
+
 	delete_queue.push_back(nodeID);
 	return;
 }
@@ -75,16 +76,26 @@ void SoundEngine::onSound(al::AudioIOData& io)
 	while(delete_queue.size() != 0)
 	{
 		int nodeID = delete_queue.back();
-		delete &al::Module::getModuleRef(nodeID);
+		al::Module * module_ref = &al::Module::getModuleRef(nodeID);
+		if ( sinkIsSet() )
+		{	
+			module_ref->getNodeID() == getSink().getNodeID();
+			sink_ref = NULL;	// Unset the sink before deleting;
+		}
+		delete module_ref;
 		InstantiatedNodes.erase(nodeID);
 		delete_queue.pop_back();
 		pre_tasks_exist=true;
 	}
 
-	if( pre_tasks_exist )
-		getSink().re_sort();	
+	if( sinkIsSet() )
+	{
+		if( pre_tasks_exist )
+			getSink().re_sort();	
 
-	getSink().onSound(io);
+		getSink().onSound(io);
+	}
+
 }
 
 void SoundEngine::setSink(int sink_node_id, std::string moduleName)

@@ -16,6 +16,8 @@ class SinkModule : public al::Module
 public:
 	SinkModule(int numInlets, int numParameters);
 
+	virtual ~SinkModule() {}
+
 	/// @brief Put the spatializer algorithm here. 
 	// virtual void spatialize(al::AudioIOData& io)=0;
 

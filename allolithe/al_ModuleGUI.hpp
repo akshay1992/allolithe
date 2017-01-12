@@ -118,8 +118,6 @@ public:
 
 	void addParameter(al::Parameter& parameter);
 
-	void setParentPatcherGUI(PatcherGUI& patcherGUI);
-
 	static void widgetChangeCallback(const glv::Notification& n);
 
 	static void valueChangeCallback(float value, void *sender, void *wrapper, void *blockThis);

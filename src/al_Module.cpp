@@ -24,12 +24,12 @@ al::Parameter& Module::parameter(int index)
 	}
 }
 
-Module::~Module(void)
+void Module::addParameter(al::Parameter* p)
 {
-	for(int i=0; i<parameters.size(); ++i)
-	{
-		if(parameters[i] != NULL) delete parameters[i];
-	}
+	if( parameters.size() > numParameters )
+		throw std::runtime_error("Too many parameters") ;
+
+	parameters.push_back(std::unique_ptr<al::Parameter>(p));
 }
 
 // glv::View& Module::createView(void)

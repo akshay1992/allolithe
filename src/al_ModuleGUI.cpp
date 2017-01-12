@@ -29,6 +29,7 @@ bool ModuleGUIKeyDownEvent::onEvent(glv::View &v, glv::GLV &g)
 			moduleGUI_ref.deleteSelf();
 		}
 	}
+	return false;
 }
 
 
@@ -294,11 +295,6 @@ void ModuleGUI::deleteSelf(void)
 
 ModuleGUI::~ModuleGUI()
 {
-}
-
-void ModuleGUI::setParentPatcherGUI(PatcherGUI& patcherGUI)
-{
-	parentPatcherGUI_ref;
 }
 
 glv::View& ModuleGUI::getView(void) { return *top; }

@@ -22,7 +22,7 @@ class Module : public lithe::Node
 public:
 	Module(int numInlets, int numOutlets, int numParameters);
 
-	virtual ~Module(void);
+	virtual ~Module(void) {}
 
 	/** @brief Use this to fill up the parameters vector
 
@@ -49,10 +49,14 @@ public:
 
 protected:
 
-	std::vector<al::Parameter*> parameters;
+	/// @brief NOTE: Dynamically allocate pointer before adding. The destructor automatically takes care of deallocation.
+	void addParameter(al::Parameter* p);
+
 	const int numParameters;
 
 private:
+	std::vector<std::unique_ptr<al::Parameter>> parameters;
+
 	using lithe::Node::getID;
 	using lithe::Node::getNodeRef;
 };

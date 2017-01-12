@@ -75,8 +75,6 @@ void PatcherGUI::onUnPatch(const glv::Notification &n)
 
 al::ModuleGUI& PatcherGUI::instantiateModule(std::string moduleName)
 {
-	cout << "instantiating Module" << endl;
-
 	NodeInfo node = sound_engine_ref.instantiateModule(moduleName);
 
 	if( ! sound_engine_ref.sinkIsSet() && 
