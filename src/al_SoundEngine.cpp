@@ -27,6 +27,11 @@ NodeInfo SoundEngine::instantiateModule(std::string moduleName)
 		InstantiatedNodes[node_info.nodeID] = node_info;
 		std::cout << "Instantiated module: " << node_info.moduleName << " NodeID: " <<  node_info.nodeID << std::endl;
 
+		if( ! sinkIsSet() && module.isASink )
+		{
+			setSink(node_info.nodeID, moduleName);
+		}
+
 		return node_info;
 	}
 	catch(std::out_of_range e)
@@ -79,8 +84,8 @@ void SoundEngine::onSound(al::AudioIOData& io)
 		al::Module * module_ref = &al::Module::getModuleRef(nodeID);
 		if ( sinkIsSet() )
 		{	
-			module_ref->getNodeID() == getSink().getNodeID();
-			sink_ref = NULL;	// Unset the sink before deleting;
+			if( module_ref->getNodeID() == getSink().getNodeID() )
+				sink_ref = NULL;	// Unset the sink before deleting;
 		}
 		delete module_ref;
 		InstantiatedNodes.erase(nodeID);

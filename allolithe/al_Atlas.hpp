@@ -76,6 +76,30 @@ private:
 };
 
 
+
+//-------------------------TORIC ATLAS------------------------------------
+
+class ToricAtlas : public AtlasWrapper<lithe::ToricAtlas>
+{ 
+public:
+	ToricAtlas( float R, float r, lithe::RangeT<float> u_range = lithe::RangeT<float>(-1,1), lithe::RangeT<float> v_range = lithe::RangeT<float>(-1, 1));
+
+	virtual al::Vec3d getXYZ(float u, float v, float d) override;
+
+	virtual al::Vec3d getXYZ(lithe::Sample& s) override;
+
+	virtual al::Vec3d getUVD(float x, float y, float z) override;
+	
+	virtual al::Vec3d getUVD(al::Vec3d& xyz) override;
+
+	/// @brief returns the normal vector to the surface of the sphere at that point (pointing towards the centre of the sphere)
+	virtual al::Vec3d NormalVector(float u, float v) override;
+
+private:	
+	/// @brief used to modulate the distance based on the d signal
+	PiecewiseLinearScaler scaler;
+};
+
 }; // namespace al
 
 
