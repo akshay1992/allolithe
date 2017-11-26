@@ -38,7 +38,7 @@ link_directories( ${binary_dir})
 
 ## -------------------------- Linking -------------------------- 
 
-target_link_libraries( allolithe lithe_core ${ALLOCORE_LIBRARY} Gamma portaudio alloGLV)
+target_link_libraries( allolithe lithe_core ${ALLOCORE_LIBRARY} alloGLV)
 target_include_directories( allolithe PUBLIC ${ALLOLITHE_INCLUDE_DIR} ${ALLOCORE_DEP_INCLUDE_DIRS})
 
 # --------------------------- Tests  ---------------------------
