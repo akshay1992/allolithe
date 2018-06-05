@@ -1,7 +1,7 @@
 #ifndef AL_SINK_MODULE_HPP
 #define AL_SINK_MODULE_HPP
 
-#include "allolithe/al_Module.hpp"
+#include "al_Module.hpp"
 
 namespace al{
 

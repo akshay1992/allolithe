@@ -8,7 +8,7 @@ message(STATUS "==== Configuring allolithe")
 #  -------------------------- Collate all the files -------------------------- 
 file( GLOB_RECURSE ALLOLITHE_SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/src/*)
 file( GLOB_RECURSE ALLOLITHE_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/allolithe/*)
-set(ALLOLITHE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/)
+set(ALLOLITHE_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/allolithe)
 
 # -------------------------- Create the allolithe library -------------------------- 
 add_library( allolithe ${ALLOLITHE_SOURCE})

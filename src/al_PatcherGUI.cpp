@@ -1,4 +1,4 @@
-#include "allolithe/al_PatcherGUI.hpp"
+#include "../allolithe/al_PatcherGUI.hpp"
 
 #include <memory>
 #include <iostream>

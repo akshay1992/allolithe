@@ -4,9 +4,9 @@
 #include <vector>
 #include <string>
 #include <iostream>
-#include "allocore/io/al_AudioIOData.hpp"
-#include "allolithe/al_Module.hpp"
-#include "allolithe/al_SinkModule.hpp"
+#include "al/core/io/al_AudioIOData.hpp"
+#include "al_Module.hpp"
+#include "al_SinkModule.hpp"
 
 namespace al{
 

@@ -1,5 +1,5 @@
-#include "allolithe/al_Module.hpp"
-#include "allolithe/al_Exceptions.hpp"
+#include "../allolithe/al_Module.hpp"
+#include "../allolithe/al_Exceptions.hpp"
 namespace al{
 
 Module::Module(int numInlets, int numOutlets, int numParameters) :

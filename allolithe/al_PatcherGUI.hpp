@@ -5,8 +5,8 @@
 #include "GLV/glv_binding.h"
 
 #include "alloGLV/al_ControlGLV.hpp"
-#include "allolithe/al_allolithe.hpp"
-#include "allolithe/al_PatcherGUIComponents.hpp"
+#include "al_allolithe.hpp"
+#include "al_PatcherGUIComponents.hpp"
 
 #include <iostream> 
 #include <memory>

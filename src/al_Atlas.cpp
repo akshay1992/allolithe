@@ -1,4 +1,4 @@
-#include "allolithe/al_Atlas.hpp"
+#include "../allolithe/al_Atlas.hpp"
 
 namespace al {
 
@@ -87,11 +87,13 @@ al::Vec3d ToricAtlas::getUVD(float x, float y, float z)
 	// float y_mul = y / mul;
 	// float z_mul = z / mul;
 	// return al::Vec3d( mAtlas.u_cart(x_mul, y_mul, z_mul), mAtlas.v_cart(x_mul, y_mul, z_mul), scaler.get_d(mul) );
+	return al::Vec3d();
 }
 
 al::Vec3d ToricAtlas::getUVD(al::Vec3d& xyz) 
 {
 	// return getUVD(xyz[0], xyz[1], xyz[2]);
+	return al::Vec3d();
 }
 
 al::Vec3d ToricAtlas::NormalVector(float u, float v)

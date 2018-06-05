@@ -1,8 +1,8 @@
 #ifndef AL_ATLAS_HPP
 #define AL_ATLAS_HPP
 
-#include "Lithe/LitheCore.h"
-#include "allocore/math/al_Vec.hpp"
+#include "LitheCore.h"
+#include "al/core.hpp"
 
 namespace al{
 

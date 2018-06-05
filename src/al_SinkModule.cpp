@@ -1,4 +1,4 @@
-#include "allolithe/al_SinkModule.hpp"
+#include "../allolithe/al_SinkModule.hpp"
 
 namespace al{ 
 

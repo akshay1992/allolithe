@@ -1,9 +1,9 @@
 #ifndef AL_MODULE_HPP
 #define AL_MODULE_HPP
 
-#include "Lithe/LitheCore.h"
-#include "allocore/ui/al_Parameter.hpp"
-#include "alloGLV/al_ParameterGUI.hpp"
+#include "LitheCore.h"
+#include "al/core.hpp"
+#include "al/util/ui/al_Parameter.hpp"
 #include <vector>
 #include <string>
 

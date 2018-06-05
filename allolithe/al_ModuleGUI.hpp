@@ -1,11 +1,11 @@
 #ifndef AL_MODULE_GUI_HPP
 #define AL_MODULE_GUI_HPP
 
-#include "GLV/glv.h"
-#include "GLV/glv_binding.h"
+#include "al/glv.hpp"
+//#include "GLV/glv_binding.h"
 
-#include "allolithe/al_Module.hpp"
-#include "allolithe/al_SoundEngine.hpp"
+#include "al_Module.hpp"
+#include "al_SoundEngine.hpp"
 
 #include <memory>
 #include <vector>

@@ -1,6 +1,6 @@
-#include "allolithe/al_SoundEngine.hpp"
+#include "../allolithe/al_SoundEngine.hpp"
 #include <algorithm>
-#include "allolithe/al_Exceptions.hpp"
+#include "../allolithe/al_Exceptions.hpp"
 
 #include <iostream>
 

@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <memory>
 
-#include "allolithe/al_SoundEngine.hpp"
+#include "al_SoundEngine.hpp"
 
 #include <iostream>
 using namespace std;

@@ -1,6 +1,6 @@
-#include "allolithe/al_PatcherGUIComponents.hpp"
-#include "allolithe/al_ModuleGUI.hpp"
-#include "allolithe/al_PatcherGUI.hpp"
+#include "../allolithe/al_PatcherGUIComponents.hpp"
+#include "../allolithe/al_ModuleGUI.hpp"
+#include "../allolithe/al_PatcherGUI.hpp"
 #include <algorithm>
 namespace al{
 
